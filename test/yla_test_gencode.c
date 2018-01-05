@@ -18,9 +18,9 @@
 
 */
 
-#include "yla_test_gencode.h"
-#include "yla_type.h"
-#include "yla_vm.h"
+#include "../include/yla_test_gencode.h"
+#include "../include/yla_type.h"
+#include "../include/yla_vm.h"
 
 void put_commd(yla_cop_type** prg, yla_cop_type value)
 {

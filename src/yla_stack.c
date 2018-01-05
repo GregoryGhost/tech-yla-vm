@@ -20,7 +20,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include "yla_stack.h"
+#include "../include/yla_stack.h"
 
 static void dprint();
 

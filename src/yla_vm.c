@@ -22,9 +22,9 @@
 #include <string.h>
 #include <stdio.h>
 
-#include "yla_cop.h"
-#include "yla_vm.h"
-#include "yla_type.h"
+#include "../include/yla_vm.h"
+#include "../include/yla_cop.h"
+#include "../include/yla_type.h"
 
 
 int yla_vm_get_value(yla_vm *vm, yla_int_type *value);
@@ -335,15 +335,18 @@ int yla_vm_do_command_internal(yla_vm *vm, yla_cop_type cop)
 			break;
 
 		case CPUSH:
+			printf("PUSH!!!111\n");
 			if (!yla_vm_get_value(vm, &res)) {
 				return 0;
 			}
 			if (!yla_vm_stack_push(vm, res)) {
 				return 0;
 			}
+			printf("PUSH res=%d\n", res);
 			break;
 
 		case CADD:
+		printf("CADD!!!111");
 			if (!yla_vm_stack_pull(vm, &op1)) {
 				return 0;
 			}
@@ -351,6 +354,7 @@ int yla_vm_do_command_internal(yla_vm *vm, yla_cop_type cop)
 				return 0;
 			}
 			res = op2 + op1;
+			printf("CADD IS RUN: RES=%d + %d = %d", op2, op1, res);
 			if (!yla_vm_stack_push(vm, res)) {
 				return 0;
 			}

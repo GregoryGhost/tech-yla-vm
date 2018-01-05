@@ -18,7 +18,7 @@
 
 */
 
-#include "yla_vm.h"
+#include "../include/yla_vm.h"
 #include <string.h>
 
 int main(int argc, int argv)
@@ -29,4 +29,5 @@ int main(int argc, int argv)
     yla_vm_init(&vm, NULL, 0);
 
     yla_vm_done(&vm);
+    printf("vm runing... yeea\n");
 }

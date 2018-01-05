@@ -1,5 +1,6 @@
 /*
-    Test for test mini-framework
+    Tests runner
+
     This file is part of YLA VM (Yet another Language for Academic purpose: Virtual Machine).
 
     YLA VM is free software: you can redistribute it and/or modify
@@ -17,28 +18,16 @@
 
 */
 
+#include "../include/yla_test.h"
 
-#include "yla_test.h"
+YLATEST_SUITE_BEGIN(yla_suite)
+  YLATEST_ADD_TEST(yla_test_test)
+  YLATEST_ADD_TEST(yla_stack_test)
+  YLATEST_ADD_TEST(yla_vm_test1)
+YLATEST_SUITE_END
 
-static int test_assertions()
+
+int main()
 {
-	YLATEST_ASSERT_TRUE(1, "true assertion incorrect");
-	YLATEST_ASSERT_FALSE(0, "false assertion incorrect");
-
-	return 0;
+	return yla_suite();
 }
-
-static int test_assertions2()
-{
-	YLATEST_ASSERT_TRUE(1, "true assertion incorrect");
-
-// uncomment this to check if test suite work correctly (failing) with failed test case
-//	YLATEST_ASSERT_FALSE(1, "false assertion incorrect");
-
-	return 0;
-}
-
-YLATEST_BEGIN(yla_test_test)
-  YLATEST_ADD_TEST_CASE(test_assertions)
-  YLATEST_ADD_TEST_CASE(test_assertions2)
-YLATEST_END

@@ -18,7 +18,7 @@
 
 */
 
-#include "yla_stack.h"
+#include "../src/yla_stack.c"
 #include "yla_test.h"
 
 static int test_init_0()

@@ -18,10 +18,10 @@
 
 */
 
-#include "yla_vm.h"
-#include "yla_cop.h"
-#include "yla_test.h"
-#include "yla_test_gencode.h"
+#include "../src/yla_vm.c"
+#include "../include/yla_cop.h"
+#include "../include/yla_test.h"
+#include "../include/yla_test_gencode.h"
 
 static int test_gencode()
 {
@@ -175,14 +175,72 @@ static int test_code_limit()
     return 0;
 }
 
+static int test_add()
+{
+    // int size_prg=3;
+    // yla_cop_type prg[HEADER_SIZE + size_prg];
+    // yla_cop_type *ptr = prg;
+
+    // put_header(&ptr, 1, 0, size_prg);
+    // put_value(&ptr, 0x12);
+    // put_value(&ptr, 0x12);
+    // put_commd(&ptr, CADD);
+
+    // yla_vm vm;
+    // yla_int_type *res;
+    // YLATEST_ASSERT_TRUE(yla_vm_init(&vm, prg, HEADER_SIZE + size_prg), "normal");
+    // // YLATEST_ASSERT_TRUE(yla_vm_run(&vm), "normal");
+    // if (yla_vm_run(&vm)==0) 
+    //     printf("vm_run error\n");
+
+    // yla_stack *vm_stack;
+    // int test=0;
+    // res=&test;
+    // vm_stack= &(vm.stack);
+
+    // if (yla_stack_top(vm_stack, res)>0)
+    //     printf("res add=%d\n", *res);
+    // else
+    //     printf("stack empty\n");
+    // YLATEST_ASSERT_TRUE(yla_vm_done(&vm), "normal");
+    int size_prg=4;
+    yla_cop_type prg[HEADER_SIZE + size_prg];
+    yla_cop_type *ptr = prg;
+
+    put_header(&ptr, 1, 0, size_prg);
+    put_commd(&ptr, CPUSH);
+    put_value(&ptr, 4);
+    put_commd(&ptr, CHALT);
+
+    yla_vm vm;
+
+    YLATEST_ASSERT_TRUE(yla_vm_init(&vm, prg, HEADER_SIZE + size_prg), "normal");
+    YLATEST_ASSERT_TRUE(yla_vm_run(&vm), "normal")
+
+    yla_stack *vm_stack;
+    yla_int_type *res;
+    int test=0;
+    res=&test;
+    vm_stack= &(vm.stack);
+    if (yla_stack_top(vm_stack, res)>0)
+        printf("res push=%d\n", *res);
+    else
+        printf("stack empty\n");
+    YLATEST_ASSERT_TRUE(yla_vm_done(&vm), "normal");
+
+    return 0;
+}
+
+
 YLATEST_BEGIN(yla_vm_test1)
-  YLATEST_ADD_TEST_CASE(test_gencode)
-  YLATEST_ADD_TEST_CASE(test_init_null)
-  YLATEST_ADD_TEST_CASE(test_init_0)
-  YLATEST_ADD_TEST_CASE(test_init_simple)
-  YLATEST_ADD_TEST_CASE(test_init_simple2)
-  YLATEST_ADD_TEST_CASE(test_init_simple_run)
-  YLATEST_ADD_TEST_CASE(test_push)
-  YLATEST_ADD_TEST_CASE(test_get_stack_full)
-  YLATEST_ADD_TEST_CASE(test_code_limit)
+    YLATEST_ADD_TEST_CASE(test_add)
+//   YLATEST_ADD_TEST_CASE(test_gencode)
+//   YLATEST_ADD_TEST_CASE(test_init_null)
+//   YLATEST_ADD_TEST_CASE(test_init_0)
+//   YLATEST_ADD_TEST_CASE(test_init_simple)
+//   YLATEST_ADD_TEST_CASE(test_init_simple2)
+//   YLATEST_ADD_TEST_CASE(test_init_simple_run)
+//   YLATEST_ADD_TEST_CASE(test_push)
+//   YLATEST_ADD_TEST_CASE(test_get_stack_full)
+//   YLATEST_ADD_TEST_CASE(test_code_limit)
 YLATEST_END
