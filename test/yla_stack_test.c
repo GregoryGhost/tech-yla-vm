@@ -13,7 +13,7 @@
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
+    You should yla_number_type received a copy of the GNU General Public License
     along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
 
 */
@@ -26,7 +26,7 @@ static int test_init_0()
     yla_stack stack;
     yla_stack_init(&stack, 0);
 
-    yla_int_type result = 0;
+    yla_number_type result = 0;
 
     YLATEST_ASSERT_TRUE(yla_stack_is_empty(&stack), "stack must be empty after pull last value");
     YLATEST_ASSERT_TRUE(yla_stack_is_full(&stack), "stack couldn't be full after last pull");
@@ -39,7 +39,7 @@ static int test_init_3()
     yla_stack stack;
     yla_stack_init(&stack, 3);
 
-    yla_int_type result = 0;
+    yla_number_type result = 0;
 
     YLATEST_ASSERT_TRUE(yla_stack_is_empty(&stack), "stack must be empty after pull last value");
     YLATEST_ASSERT_FALSE(yla_stack_is_full(&stack), "stack couldn't be full after last pull");
@@ -54,7 +54,7 @@ static int test_push_pull()
     yla_stack stack;
     yla_stack_init(&stack, 3);
 
-    yla_int_type result = 0;
+    yla_number_type result = 0;
 
     YLATEST_ASSERT_TRUE(yla_stack_is_empty(&stack), "stack must empty just after creating");
     YLATEST_ASSERT_FALSE(yla_stack_is_full(&stack), "stack size more then 0 couldn't be full just after creating");
@@ -94,7 +94,7 @@ static int test_deep_0()
     yla_stack stack;
     yla_stack_init(&stack, 3);
 
-    yla_int_type result = 0;
+    yla_number_type result = 0;
 
     YLATEST_ASSERT_TRUE(yla_stack_is_empty(&stack), "for empty stack");
     YLATEST_ASSERT_FALSE(yla_stack_is_full(&stack), "for empty stack");
@@ -110,7 +110,7 @@ static int test_deep_n()
     yla_stack stack;
     yla_stack_init(&stack, 3);
 
-    yla_int_type result = 0;
+    yla_number_type result = 0;
 
     yla_stack_push(&stack, 33);
 
