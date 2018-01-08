@@ -26,7 +26,7 @@
 #include "yla_type.h"
 
 typedef struct {
-    int *ptr;
+    yla_number_type *ptr;
     size_t size;
     size_t count;
 } yla_stack;

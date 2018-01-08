@@ -104,7 +104,7 @@ static void dprint(yla_stack* stack)
     int i;
     printf("stack:{size: %zu, count: %zu values: ", stack->size, stack->count);
     for (i=0; i < stack->count; ++i) {
-        printf("%d ", stack->ptr[i]);
+        printf("%f ", stack->ptr[i]);
     }
     printf("}\n");
 }
