@@ -187,7 +187,7 @@ static int test_add()
     // put_commd(&ptr, CADD);
 
     // yla_vm vm;
-    // yla_int_type *res;
+    // yla_number_type *res;
     // YLATEST_ASSERT_TRUE(yla_vm_init(&vm, prg, HEADER_SIZE + size_prg), "normal");
     // // YLATEST_ASSERT_TRUE(yla_vm_run(&vm), "normal");
     // if (yla_vm_run(&vm)==0) 
@@ -218,7 +218,7 @@ static int test_add()
     YLATEST_ASSERT_TRUE(yla_vm_run(&vm), "normal")
 
     yla_stack *vm_stack;
-    yla_int_type *res;
+    yla_number_type *res;
     int test=0;
     res=&test;
     vm_stack= &(vm.stack);

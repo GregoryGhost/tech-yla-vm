@@ -27,12 +27,12 @@
 #include "../include/yla_type.h"
 
 
-int yla_vm_get_value(yla_vm *vm, yla_int_type *value);
+int yla_vm_get_value(yla_vm *vm, yla_number_type *value);
 
-int yla_vm_set_var(yla_vm *vm, size_t index, yla_int_type value);
-int yla_vm_get_var(yla_vm *vm, size_t index, yla_int_type *value);
+int yla_vm_set_var(yla_vm *vm, size_t index, yla_number_type value);
+int yla_vm_get_var(yla_vm *vm, size_t index, yla_number_type *value);
 
-yla_int_type yla_vm_get_value_internal(yla_cop_type *start);
+yla_number_type yla_vm_get_value_internal(yla_cop_type *start);
 
 int yla_vm_read_header(yla_vm *vm, yla_cop_type *program, size_t program_size);
 int yla_vm_check_magic(yla_cop_type** program);
@@ -58,7 +58,7 @@ int yla_vm_init(yla_vm *vm, yla_cop_type *program, size_t program_size)
 	}
 	
 	yla_stack_init(&vm->stack, vm->stack_size);
-	vm->vartable = calloc(vm->vartable_size, sizeof(yla_int_type));
+	vm->vartable = calloc(vm->vartable_size, sizeof(yla_number_type));
 	vm->code = malloc(vm->code_size);
 	vm->pc = 0;
 	if (program_size < HEADER_SIZE + vm->code_size) {
@@ -176,24 +176,24 @@ Private functions
 /*
 Get values
 */
-int yla_vm_get_value(yla_vm *vm, yla_int_type *value)
+int yla_vm_get_value(yla_vm *vm, yla_number_type *value)
 {
-	if (vm->pc + sizeof(yla_int_type) > vm->code_size) {
+	if (vm->pc + sizeof(yla_number_type) > vm->code_size) {
 		vm->last_error = YLA_VM_ERROR_CODE_SEG_EXCEED;
 		return 0;
 	}
 	
 	*value = yla_vm_get_value_internal(vm->code);
-	vm->pc += sizeof(yla_int_type);
+	vm->pc += sizeof(yla_number_type);
 
 	return 1;
 }
 
-yla_int_type yla_vm_get_value_internal(yla_cop_type *start)
+yla_number_type yla_vm_get_value_internal(yla_cop_type *start)
 {
 	unsigned int full_value = 0;
 	size_t i=0;
-	for (i=0; i<sizeof(yla_int_type); ++i) {
+	for (i=0; i<sizeof(yla_number_type); ++i) {
 		full_value <<= 8;
 		unsigned char byte = *start++;
 		full_value |= byte;
@@ -224,24 +224,24 @@ int yla_vm_read_header(yla_vm *vm, yla_cop_type *program, size_t program_size)
 
 int yla_vm_check_magic(yla_cop_type** program)
 {
-	yla_int_type magic_value;
+	yla_number_type magic_value;
 	magic_value = yla_vm_get_value_internal(*program);
 	if (magic_value != MAGIC_CODE1) {
 		return 0;
 	}
-	*program += sizeof(yla_int_type);
+	*program += sizeof(yla_number_type);
 
 	magic_value = yla_vm_get_value_internal(*program);
 	if (magic_value != MAGIC_CODE2) {
 		return 0;
 	}
-	*program += sizeof(yla_int_type);
+	*program += sizeof(yla_number_type);
 
 	magic_value = yla_vm_get_value_internal(*program);
 	if (magic_value != MAGIC_CODE3) {
 		return 0;
 	}
-	*program += sizeof(yla_int_type);
+	*program += sizeof(yla_number_type);
 
 	return 1;
 }
@@ -252,19 +252,19 @@ int yla_vm_read_sizes(yla_vm *vm, yla_cop_type **program)
 	if (vm->stack_size > MAX_STACK_SIZE) {
 		return 0;
 	}
-	*program += sizeof(yla_int_type);
+	*program += sizeof(yla_number_type);
 
 	vm->vartable_size = (size_t)yla_vm_get_value_internal(*program);
 	if (vm->vartable_size > MAX_VARTABLE_SIZE) {
 		return 0;
 	}
-	*program += sizeof(yla_int_type);
+	*program += sizeof(yla_number_type);
 
 	vm->code_size = (size_t)yla_vm_get_value_internal(*program);
 	if (vm->code_size > MAX_CODE_SIZE) {
 		return 0;
 	}
-	*program += sizeof(yla_int_type);
+	*program += sizeof(yla_number_type);
 
 	return 1;
 }
@@ -272,7 +272,7 @@ int yla_vm_read_sizes(yla_vm *vm, yla_cop_type **program)
 /*
 Vartable
 */
-int yla_vm_get_var(yla_vm *vm, size_t index, yla_int_type *value)
+int yla_vm_get_var(yla_vm *vm, size_t index, yla_number_type *value)
 {
 	if (!vm) {
 		return 0;
@@ -286,7 +286,7 @@ int yla_vm_get_var(yla_vm *vm, size_t index, yla_int_type *value)
 	return 1;
 }
 
-int yla_vm_set_var(yla_vm *vm, size_t index, yla_int_type value)
+int yla_vm_set_var(yla_vm *vm, size_t index, yla_number_type value)
 {
 	if (!vm) {
 		return 0;
@@ -302,7 +302,7 @@ int yla_vm_set_var(yla_vm *vm, size_t index, yla_int_type value)
 Stack
 */
 
-int yla_vm_stack_pull(yla_vm *vm, yla_int_type *value)
+int yla_vm_stack_pull(yla_vm *vm, yla_number_type *value)
 {
 	if (!yla_stack_pull(&vm->stack, value)) {
 		vm->last_error = YLA_VM_ERROR_STACK_EMPTY;
@@ -311,7 +311,7 @@ int yla_vm_stack_pull(yla_vm *vm, yla_int_type *value)
 	return 1;
 }
 
-int yla_vm_stack_push(yla_vm *vm, yla_int_type value)
+int yla_vm_stack_push(yla_vm *vm, yla_number_type value)
 {
 	if (!yla_stack_push(&vm->stack, value)) {
 		vm->last_error = YLA_VM_ERROR_STACK_FULL;
@@ -325,9 +325,9 @@ Perform command by code of operation
 */
 int yla_vm_do_command_internal(yla_vm *vm, yla_cop_type cop)
 {
-	yla_int_type op1;
-	yla_int_type op2;
-	yla_int_type res;
+	yla_number_type op1;
+	yla_number_type op2;
+	yla_number_type res;
 
 	switch(cop) {
 

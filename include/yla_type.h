@@ -18,7 +18,5 @@
 
 */
 
-#include <inttypes.h>
-
-typedef uint16_t yla_int_type;
+typedef double yla_number_type;
 typedef unsigned char yla_cop_type;

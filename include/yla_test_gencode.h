@@ -26,8 +26,13 @@
 
 void put_commd(yla_cop_type** prg, yla_cop_type value);
 
-void put_value(yla_cop_type** prg, yla_int_type value);
+void put_value(yla_cop_type** prg, yla_number_type value);
 
 void put_header(yla_cop_type** prg, size_t stack_size, size_t vartable_size, size_t code_size);
+
+typedef union union_double{
+        yla_number_type num;
+        unsigned char chars[sizeof(yla_number_type)];
+} union_double;
 
 #endif
