@@ -40,7 +40,7 @@
   }\
 }
 
-#define YLATEST_RESULT(result) ((result)?"FAILED":"PASSED")
+#define YLATEST_RESULT(result) ((result)?"\033[31mFAILED\033[0m":"\033[32mPASSED\033[0m")
 
 #define YLATEST_BEGIN(name) int name()\
 {\
