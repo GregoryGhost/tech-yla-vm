@@ -28,7 +28,7 @@ void yla_stack_init(yla_stack* stack, size_t size)
 {
     stack->size = size;
     stack->count = 0;
-    stack->ptr = calloc(stack->size, sizeof(int));
+    stack->ptr = calloc(stack->size, sizeof(yla_number_type));
 }
 
 void yla_stack_done(yla_stack* stack)

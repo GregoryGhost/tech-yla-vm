@@ -30,19 +30,28 @@ void put_commd(yla_cop_type** prg, yla_cop_type value)
 
 void put_value(yla_cop_type** prg, yla_number_type value)
 {
-	union_double helper;
+	UNION_DOUBLE helper;
     helper.num = value;
-    for (auto i = 0; i < sizeof(yla_number_type); i++)
+    for (int i = 0; i < sizeof(yla_number_type); i++)
     {
         put_commd(prg, helper.chars[i]);
     }
+}
+
+void put_number(yla_cop_type** prg, yla_number_type value)
+{
+	put_commd(prg, CPUSH);
+	put_value(prg, value);
 }
 
 void put_header(yla_cop_type** prg, size_t stack_size, size_t vartable_size, size_t code_size)
 {
     put_value(prg, MAGIC_CODE1);
     put_value(prg, MAGIC_CODE2);
+    
     put_value(prg, MAGIC_CODE3);
+    //NOTE: warning - size_t разбирается на double, происходит отбрасывание дробной части
+    //неявное приведение size_t к double
     put_value(prg, stack_size);
     put_value(prg, vartable_size);
     put_value(prg, code_size);

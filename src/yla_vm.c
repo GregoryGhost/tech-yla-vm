@@ -191,14 +191,12 @@ int yla_vm_get_value(yla_vm *vm, yla_number_type *value)
 
 yla_number_type yla_vm_get_value_internal(yla_cop_type *start)
 {
-	unsigned int full_value = 0;
-	size_t i=0;
-	for (i=0; i<sizeof(yla_number_type); ++i) {
-		full_value <<= 8;
-		unsigned char byte = *start++;
-		full_value |= byte;
+	UNION_DOUBLE helper;
+	helper.num = 0.0;
+	for(int i = 0; i < sizeof(yla_number_type); i++){
+		helper.chars[i] = *start++;
 	}
-	return full_value;
+	return helper.num;
 }
 
 /*
@@ -253,13 +251,13 @@ int yla_vm_read_sizes(yla_vm *vm, yla_cop_type **program)
 		return 0;
 	}
 	*program += sizeof(yla_number_type);
-
+	
 	vm->vartable_size = (size_t)yla_vm_get_value_internal(*program);
 	if (vm->vartable_size > MAX_VARTABLE_SIZE) {
 		return 0;
 	}
 	*program += sizeof(yla_number_type);
-
+	
 	vm->code_size = (size_t)yla_vm_get_value_internal(*program);
 	if (vm->code_size > MAX_CODE_SIZE) {
 		return 0;
@@ -335,18 +333,15 @@ int yla_vm_do_command_internal(yla_vm *vm, yla_cop_type cop)
 			break;
 
 		case CPUSH:
-			printf("PUSH!!!111\n");
 			if (!yla_vm_get_value(vm, &res)) {
 				return 0;
 			}
 			if (!yla_vm_stack_push(vm, res)) {
 				return 0;
 			}
-			printf("PUSH res=%d\n", res);
 			break;
 
 		case CADD:
-		printf("CADD!!!111");
 			if (!yla_vm_stack_pull(vm, &op1)) {
 				return 0;
 			}
@@ -354,7 +349,7 @@ int yla_vm_do_command_internal(yla_vm *vm, yla_cop_type cop)
 				return 0;
 			}
 			res = op2 + op1;
-			printf("CADD IS RUN: RES=%d + %d = %d", op2, op1, res);
+			
 			if (!yla_vm_stack_push(vm, res)) {
 				return 0;
 			}

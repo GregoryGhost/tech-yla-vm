@@ -17,6 +17,17 @@
     along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
 
 */
+#ifndef _yla_type_h
+#define _yla_type_h
 
 typedef double yla_number_type;
 typedef unsigned char yla_cop_type;
+
+union union_d{
+        yla_number_type num;
+        unsigned char chars[sizeof(yla_number_type)];
+};
+
+typedef union union_d UNION_DOUBLE;
+
+#endif

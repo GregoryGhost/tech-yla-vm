@@ -27,11 +27,13 @@
 #include <stddef.h>
 
 #define MAGIC_SIZE 3
-#define MAGIC_CODE1 0x796c
-#define MAGIC_CODE2 0x615f
-#define MAGIC_CODE3 0x766d
+#define MAGIC_CODE1 3.22
+#define MAGIC_CODE2 6.66
+#define MAGIC_CODE3 12.258
 
-#define HEADER_SIZE ((MAGIC_SIZE + 3) * sizeof(yla_number_type))
+#define spaceForCodeVartableProgramSizesize 3
+
+#define HEADER_SIZE ((MAGIC_SIZE + spaceForCodeVartableProgramSizesize)* sizeof(yla_number_type))
 #define MAX_CODE_SIZE ((size_t)65535)
 #define MAX_STACK_SIZE ((size_t)65535)
 #define MAX_VARTABLE_SIZE ((size_t)65535)
