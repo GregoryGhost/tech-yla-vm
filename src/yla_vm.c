@@ -169,6 +169,13 @@ int yla_vm_error_text(yla_vm *vm, int error_code, char *buf, int buf_len)
 	return 0;
 }
 
+char *yla_vm_last_output(yla_vm *vm)
+{
+	if (!vm){
+		return "vm not found";
+	}
+	return vm->lastOutput;
+}
 /*
 Private functions
 */
@@ -320,6 +327,14 @@ int yla_vm_stack_push(yla_vm *vm, yla_number_type value)
 	return 1;
 }
 
+int yla_vm_stack_top(yla_vm *vm, yla_number_type *value)
+{
+	if (!yla_stack_top(&vm->stack, value)) {
+		vm->last_error = YLA_VM_ERROR_STACK_EMPTY;
+		return 0;
+	}
+	return 1;
+}
 /*
 Perform command by code of operation
 */
@@ -402,6 +417,13 @@ int yla_vm_do_command_internal(yla_vm *vm, yla_cop_type cop)
 			}
 			break;
 
+		case COUT:
+			if (!yla_vm_stack_top(vm, &res)) {
+				return 0;
+			}
+			vm->lastOutput = format_number(res);
+			break;
+			
 		case CHALT:
 			return -1;
 
@@ -435,4 +457,14 @@ char *yla_vm_error_message(int error_code)
 		default:
 			return "Unknown error";
 	}
+}
+
+/*
+ * Format output
+ */
+char *format_number(yla_number_type num)
+{
+	char *result = calloc(1, sizeof(yla_number_type));
+	sprintf(result, "%f", num);
+	return result;
 }

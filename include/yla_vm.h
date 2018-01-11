@@ -73,6 +73,7 @@ typedef struct {
 	size_t pc;
 
 	int last_error;
+	char *lastOutput;
 } yla_vm;
 
 /*
@@ -121,6 +122,20 @@ int yla_vm_last_error(yla_vm *vm);
  **/
 int yla_vm_error_text(yla_vm *vm, int error_code, char *buf, int buf_len);
 
+/**
+ * Returns last output of set.
+ * @param vm virtual machine structure
+ * @return string value output of last command COUT
+ **/
+char *yla_vm_last_output(yla_vm *vm);
+
+
+/**
+ * Returns formatted number
+ * @param number for formating
+ * @return formatted number as string
+ **/
+ char *format_number(yla_number_type num);
 /*
 TODO: Add/Remove breakpoints
 */

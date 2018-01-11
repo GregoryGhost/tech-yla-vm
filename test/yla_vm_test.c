@@ -106,26 +106,26 @@ static int test_init_simple_run()
 
 static int test_push_number()
 {
-	const size_t kCommd = 2;
+	const size_t kCommd = 3;
 	size_t sizePrg = kCommd + sizeof(yla_number_type);
     yla_cop_type prg[HEADER_SIZE + sizePrg];
     yla_cop_type *ptr = prg;
     
 	const size_t stackSize = 1;
-	yla_number_type tresult = 3.2223;
-	yla_number_type exceptedResult = 0.0;
+	yla_number_type tResult = 3.2223;
+	char *stResult = format_number(tResult);
 
     put_header(&ptr, stackSize, 0, sizePrg);
-    put_number(&ptr, tresult);
+    put_number(&ptr, tResult);
+    put_commd(&ptr, COUT);
     put_commd(&ptr, CHALT);
-
     yla_vm vm;
     
     YLATEST_ASSERT_TRUE(yla_vm_init(&vm, prg, HEADER_SIZE + sizePrg), "normal");
     YLATEST_ASSERT_TRUE(yla_vm_run(&vm), "normal");
     YLATEST_ASSERT_TRUE(yla_vm_last_error(&vm) == YLA_VM_ERROR_OK, "normal");
-    YLATEST_ASSERT_TRUE(yla_stack_top(&vm.stack, &exceptedResult), "Excepted get value");
-    YLATEST_ASSERT_TRUE(exceptedResult == tresult, "It was expected that the values would coincide");
+    char *stL = yla_vm_last_output(&vm);
+    YLATEST_ASSERT_TRUE(strcmp(stL, stResult) == 0, "It was expected that the values would coincide");
     YLATEST_ASSERT_TRUE(yla_vm_done(&vm), "normal");
 
     return 0;
