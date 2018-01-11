@@ -28,14 +28,14 @@ static int test_add_numbers()
 {
     yla_vm vm;
     size_t sizePrg = 2 * sizeof(yla_number_type);
-    size_t sizeCommd = 4;
+    size_t sizeCommd = 5;
     size_t stackSize = 2;
     yla_cop_type prg[HEADER_SIZE + sizePrg + sizeCommd];
     
     yla_number_type op1 = 3.22;
     yla_number_type op2 = 2.28;
     yla_number_type tresult = op1 + op2;
-    yla_number_type exceptedResult = -1.0;
+    char *stResult = format_number(tresult);
     yla_cop_type *ptr = prg;
     
     //3.22 2.28 + = 5.5
@@ -43,13 +43,13 @@ static int test_add_numbers()
     put_number(&ptr, op1);    
     put_number(&ptr, op2);
     put_commd(&ptr, CADD);
-    //put_commd(&ptr, COUT);
+    put_commd(&ptr, COUT);
     put_commd(&ptr, CHALT);
     
     YLATEST_ASSERT_TRUE(yla_vm_init(&vm, prg, HEADER_SIZE + sizePrg + sizeCommd), "normal");
     YLATEST_ASSERT_TRUE(yla_vm_run(&vm), "normal");
-    YLATEST_ASSERT_TRUE(yla_stack_pull(&vm.stack, &exceptedResult), "Excepted addition value");
-    YLATEST_ASSERT_TRUE(exceptedResult == tresult, "It was expected that the values would coincide");
+    char *exceptedResult = yla_vm_last_output(&vm);
+    YLATEST_ASSERT_TRUE(strcmp(exceptedResult, stResult) == 0, "It was expected that the values would coincide");
     YLATEST_ASSERT_TRUE(yla_vm_done(&vm), "normal");
     
     return 0;
@@ -59,14 +59,14 @@ static int test_sub_numbers()
 {
     yla_vm vm;
     size_t sizePrg = 2 * sizeof(yla_number_type);
-    size_t sizeCommd = 4;
+    size_t sizeCommd = 5;
     size_t stackSize = 2;
     yla_cop_type prg[HEADER_SIZE + sizePrg + sizeCommd];
     
     yla_number_type op1 = 3.22;
     yla_number_type op2 = 2.28;
     yla_number_type tresult = op1 - op2;
-    yla_number_type exceptedResult = -1.0;
+    char *stResult = format_number(tresult);
     yla_cop_type *ptr = prg;
     
     //3.22 2.28 - = 0.94
@@ -74,13 +74,13 @@ static int test_sub_numbers()
     put_number(&ptr, op1);    
     put_number(&ptr, op2);
     put_commd(&ptr, CSUB);
-    //put_commd(&ptr, COUT);
+    put_commd(&ptr, COUT);
     put_commd(&ptr, CHALT);
     
     YLATEST_ASSERT_TRUE(yla_vm_init(&vm, prg, HEADER_SIZE + sizePrg + sizeCommd), "normal");
     YLATEST_ASSERT_TRUE(yla_vm_run(&vm), "normal");
-    YLATEST_ASSERT_TRUE(yla_stack_pull(&vm.stack, &exceptedResult), "Excepted addition value");
-    YLATEST_ASSERT_TRUE(exceptedResult == tresult, "It was expected that the values would coincide");
+    char *exceptedResult = yla_vm_last_output(&vm);
+    YLATEST_ASSERT_TRUE(strcmp(exceptedResult, stResult) == 0, "It was expected that the values would coincide");
     YLATEST_ASSERT_TRUE(yla_vm_done(&vm), "normal");
     
     return 0;
@@ -90,14 +90,14 @@ static int test_mult_numbers()
 {
     yla_vm vm;
     size_t sizePrg = 2 * sizeof(yla_number_type);
-    size_t sizeCommd = 4;
+    size_t sizeCommd = 5;
     size_t stackSize = 2;
     yla_cop_type prg[HEADER_SIZE + sizePrg + sizeCommd];
     
     yla_number_type op1 = 3.22;
     yla_number_type op2 = 2.28;
     yla_number_type tresult = op1 * op2;
-    yla_number_type exceptedResult = -1.0;
+    char *stResult = format_number(tresult);
     yla_cop_type *ptr = prg;
     
     //3.22 2.28 * = 7.3416
@@ -105,13 +105,13 @@ static int test_mult_numbers()
     put_number(&ptr, op1);    
     put_number(&ptr, op2);
     put_commd(&ptr, CMULT);
-    //put_commd(&ptr, COUT);
+    put_commd(&ptr, COUT);
     put_commd(&ptr, CHALT);
     
     YLATEST_ASSERT_TRUE(yla_vm_init(&vm, prg, HEADER_SIZE + sizePrg + sizeCommd), "normal");
     YLATEST_ASSERT_TRUE(yla_vm_run(&vm), "normal");
-    YLATEST_ASSERT_TRUE(yla_stack_pull(&vm.stack, &exceptedResult), "Excepted addition value");
-    YLATEST_ASSERT_TRUE(exceptedResult == tresult, "It was expected that the values would coincide");
+    char *exceptedResult = yla_vm_last_output(&vm);
+    YLATEST_ASSERT_TRUE(strcmp(exceptedResult, stResult) == 0, "It was expected that the values would coincide");
     YLATEST_ASSERT_TRUE(yla_vm_done(&vm), "normal");
     
     return 0;
@@ -121,14 +121,14 @@ static int test_div_numbers()
 {
     yla_vm vm;
     size_t sizePrg = 2 * sizeof(yla_number_type);
-    size_t sizeCommd = 4;
+    size_t sizeCommd = 5;
     size_t stackSize = 2;
     yla_cop_type prg[HEADER_SIZE + sizePrg + sizeCommd];
     
     yla_number_type op1 = 3.22;
     yla_number_type op2 = 2;
     yla_number_type tresult = op1 / op2;
-    yla_number_type exceptedResult = -1.0;
+    char *stResult = format_number(tresult);
     yla_cop_type *ptr = prg;
     
     //3.22 2 / = 1.61
@@ -136,13 +136,13 @@ static int test_div_numbers()
     put_number(&ptr, op1);
     put_number(&ptr, op2);
     put_commd(&ptr, CDIV);
-    //put_commd(&ptr, COUT);
+    put_commd(&ptr, COUT);
     put_commd(&ptr, CHALT);
     
     YLATEST_ASSERT_TRUE(yla_vm_init(&vm, prg, HEADER_SIZE + sizePrg + sizeCommd), "normal");
     YLATEST_ASSERT_TRUE(yla_vm_run(&vm), "normal");
-    YLATEST_ASSERT_TRUE(yla_stack_pull(&vm.stack, &exceptedResult), "Excepted addition value");
-    YLATEST_ASSERT_TRUE(exceptedResult == tresult, "It was expected that the values would coincide");
+    char *exceptedResult = yla_vm_last_output(&vm);
+    YLATEST_ASSERT_TRUE(strcmp(exceptedResult, stResult) == 0, "It was expected that the values would coincide");
     YLATEST_ASSERT_TRUE(yla_vm_done(&vm), "normal");
     
     return 0;
@@ -159,7 +159,6 @@ static int test_div_on_zero_numbers()
     yla_number_type op1 = 3.22;
     yla_number_type op2 = 0;
     yla_number_type tresult = op1 * op2;
-    yla_number_type exceptedResult = -1.0;
     yla_cop_type *ptr = prg;
     
     //0 3.22 / = YLA_VM_ERROR_DIV_BY_ZERO
@@ -167,7 +166,6 @@ static int test_div_on_zero_numbers()
     put_number(&ptr, op1);
     put_number(&ptr, op2);
     put_commd(&ptr, CDIV);
-    //put_commd(&ptr, COUT);
     put_commd(&ptr, CHALT);
     
     YLATEST_ASSERT_TRUE(yla_vm_init(&vm, prg, HEADER_SIZE + sizePrg + sizeCommd), "normal");
