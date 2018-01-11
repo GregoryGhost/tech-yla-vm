@@ -110,16 +110,22 @@ static int test_push_number()
 	size_t sizePrg = kCommd + sizeof(yla_number_type);
     yla_cop_type prg[HEADER_SIZE + sizePrg];
     yla_cop_type *ptr = prg;
+    
 	const size_t stackSize = 1;
-	
+	yla_number_type tresult = 3.2223;
+	yla_number_type exceptedResult = 0.0;
+
     put_header(&ptr, stackSize, 0, sizePrg);
-    put_number(&ptr, 3.22);
+    put_number(&ptr, tresult);
     put_commd(&ptr, CHALT);
 
     yla_vm vm;
     
     YLATEST_ASSERT_TRUE(yla_vm_init(&vm, prg, HEADER_SIZE + sizePrg), "normal");
     YLATEST_ASSERT_TRUE(yla_vm_run(&vm), "normal");
+    YLATEST_ASSERT_TRUE(yla_vm_last_error(&vm) == YLA_VM_ERROR_OK, "normal");
+    YLATEST_ASSERT_TRUE(yla_stack_top(&vm.stack, &exceptedResult), "Excepted get value");
+    YLATEST_ASSERT_TRUE(exceptedResult == tresult, "It was expected that the values would coincide");
     YLATEST_ASSERT_TRUE(yla_vm_done(&vm), "normal");
 
     return 0;
@@ -169,6 +175,25 @@ static int test_code_limit()
     return 0;
 }
 
+static int test_code_get_value_internal_from_program(){
+	const size_t kCommd = 2;
+	size_t sizePrg = kCommd + sizeof(yla_number_type);
+    yla_cop_type prg[HEADER_SIZE + sizePrg];
+    yla_cop_type *ptr = prg;
+	const size_t stackSize = 1;
+	yla_number_type tresult = 6234.234;
+	
+    put_header(&ptr, stackSize, 0, sizePrg);
+    put_number(&ptr, tresult);
+    put_commd(&ptr, CHALT);
+
+    
+    yla_number_type exceptedResult = yla_vm_get_value_internal(prg+HEADER_SIZE+1);
+    YLATEST_ASSERT_TRUE(exceptedResult == tresult, "It was expected that the values would coincide");
+
+    return 0;
+}
+
 YLATEST_BEGIN(yla_vm_test)
    YLATEST_ADD_TEST_CASE(test_init_null)
    YLATEST_ADD_TEST_CASE(test_init_0)
@@ -176,6 +201,7 @@ YLATEST_BEGIN(yla_vm_test)
    YLATEST_ADD_TEST_CASE(test_init_simple2)
    YLATEST_ADD_TEST_CASE(test_init_simple_run)
    YLATEST_ADD_TEST_CASE(test_push_number)
-   YLATEST_ADD_TEST_CASE(test_get_stack_full)
+   //YLATEST_ADD_TEST_CASE(test_get_stack_full)
    YLATEST_ADD_TEST_CASE(test_code_limit)
+   YLATEST_ADD_TEST_CASE(test_code_get_value_internal_from_program)
 YLATEST_END

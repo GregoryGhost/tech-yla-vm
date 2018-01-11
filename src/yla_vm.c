@@ -183,18 +183,19 @@ int yla_vm_get_value(yla_vm *vm, yla_number_type *value)
 		return 0;
 	}
 	
-	*value = yla_vm_get_value_internal(vm->code);
+	*value = yla_vm_get_value_internal(&vm->code[vm->pc]);
 	vm->pc += sizeof(yla_number_type);
-
+	
 	return 1;
 }
 
 yla_number_type yla_vm_get_value_internal(yla_cop_type *start)
 {
 	UNION_DOUBLE helper;
-	helper.num = 0.0;
+	helper.num = 2.0;
+	
 	for(int i = 0; i < sizeof(yla_number_type); i++){
-		helper.chars[i] = *start++;
+		helper.chars[i] = (*(start+i));
 	}
 	return helper.num;
 }
@@ -259,6 +260,7 @@ int yla_vm_read_sizes(yla_vm *vm, yla_cop_type **program)
 	*program += sizeof(yla_number_type);
 	
 	vm->code_size = (size_t)yla_vm_get_value_internal(*program);
+
 	if (vm->code_size > MAX_CODE_SIZE) {
 		return 0;
 	}
@@ -348,6 +350,7 @@ int yla_vm_do_command_internal(yla_vm *vm, yla_cop_type cop)
 			if (!yla_vm_stack_pull(vm, &op2)) {
 				return 0;
 			}
+			
 			res = op2 + op1;
 			
 			if (!yla_vm_stack_push(vm, res)) {
@@ -388,7 +391,8 @@ int yla_vm_do_command_internal(yla_vm *vm, yla_cop_type cop)
 			if (!yla_vm_stack_pull(vm, &op2)) {
 				return 0;
 			}
-			if (op1==0) {
+
+			if (op1==0.0) {
 				vm->last_error = YLA_VM_ERROR_DIV_BY_ZERO;
 				return 0;
 			}

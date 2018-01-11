@@ -25,7 +25,7 @@ typedef unsigned char yla_cop_type;
 
 union union_d{
         yla_number_type num;
-        unsigned char chars[sizeof(yla_number_type)];
+        yla_cop_type chars[sizeof(yla_number_type)];
 };
 
 typedef union union_d UNION_DOUBLE;

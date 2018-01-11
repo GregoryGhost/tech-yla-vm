@@ -31,9 +31,9 @@
 #define MAGIC_CODE2 6.66
 #define MAGIC_CODE3 12.258
 
-#define spaceForCodeVartableProgramSizesize 3
+#define spaceForCodeVartableProgramSizeSize 3
 
-#define HEADER_SIZE ((MAGIC_SIZE + spaceForCodeVartableProgramSizesize)* sizeof(yla_number_type))
+#define HEADER_SIZE ((MAGIC_SIZE + spaceForCodeVartableProgramSizeSize)* sizeof(yla_number_type))
 #define MAX_CODE_SIZE ((size_t)65535)
 #define MAX_STACK_SIZE ((size_t)65535)
 #define MAX_VARTABLE_SIZE ((size_t)65535)
