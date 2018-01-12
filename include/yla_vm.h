@@ -31,7 +31,7 @@
 #define MAGIC_CODE2 6.66
 #define MAGIC_CODE3 12.258
 
-#define spaceForCodeVartableProgramSizeSize 3
+#define spaceForCodeVartableProgramSizeSize 4
 
 #define HEADER_SIZE ((MAGIC_SIZE + spaceForCodeVartableProgramSizeSize)* sizeof(yla_number_type))
 #define MAX_CODE_SIZE ((size_t)65535)
@@ -45,6 +45,9 @@
 #define YLA_VM_ERROR_UNKNOWN_COMMAND (-4)
 #define YLA_VM_ERROR_STACK_EMPTY (-5)
 #define YLA_VM_ERROR_STACK_FULL (-6)
+#define YLA_VM_ERROR_BAD_SET_SIZE (-7)
+#define YLA_VM_ERROR_INTERP_STACK_EMPTY (-8)
+#define YLA_VM_ERROR_INTERP_STACK_FULL (-9)
 
 /*
 Executable program structure:
@@ -63,6 +66,9 @@ code: array of char
 typedef struct {
 	yla_stack stack;
 	size_t stack_size;
+	
+	yla_stack interp_stack;
+	size_t interp_stack_size;
 
 	yla_cop_type *code;
 	size_t code_size;
@@ -136,6 +142,14 @@ char *yla_vm_last_output(yla_vm *vm);
  * @return formatted number as string
  **/
  char *format_number(yla_number_type num);
+ 
+ /**
+ * Returns formatted elements of set
+ * @param count element in set
+ * @param set for formating
+ * @return formatted elements of set as string
+ **/
+ char *format_set(size_t size_of_set, yla_number_type *set);
 /*
 TODO: Add/Remove breakpoints
 */

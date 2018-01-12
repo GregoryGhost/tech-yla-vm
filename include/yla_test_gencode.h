@@ -30,4 +30,8 @@ void put_number(yla_cop_type** prg, yla_number_type value);
 
 void put_header(yla_cop_type** prg, size_t stack_size, size_t vartable_size, size_t code_size);
 
+void put_header_ext(yla_cop_type** prg, size_t stack_size, size_t interp_stack_size, size_t vartable_size, size_t code_size);
+
+void put_set(yla_cop_type** prg, size_t size_of_set, yla_number_type *set);
+
 #endif

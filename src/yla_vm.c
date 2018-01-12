@@ -41,7 +41,6 @@ int yla_vm_read_sizes(yla_vm *vm, yla_cop_type **program);
 int yla_vm_do_command_internal(yla_vm *vm, yla_cop_type cop);
 
 char *yla_vm_error_message(int error_code);
-
 /*
 Public functions
 */
@@ -58,6 +57,7 @@ int yla_vm_init(yla_vm *vm, yla_cop_type *program, size_t program_size)
 	}
 	
 	yla_stack_init(&vm->stack, vm->stack_size);
+	yla_stack_init(&vm->interp_stack, vm->interp_stack_size);
 	vm->vartable = calloc(vm->vartable_size, sizeof(yla_number_type));
 	vm->code = malloc(vm->code_size);
 	vm->pc = 0;
@@ -264,6 +264,12 @@ int yla_vm_read_sizes(yla_vm *vm, yla_cop_type **program)
 	}
 	*program += sizeof(yla_number_type);
 	
+	vm->interp_stack_size = (size_t)yla_vm_get_value_internal(*program);
+	if (vm->interp_stack_size > MAX_STACK_SIZE) {
+		return 0;
+	}
+	*program += sizeof(yla_number_type);
+	
 	vm->vartable_size = (size_t)yla_vm_get_value_internal(*program);
 	if (vm->vartable_size > MAX_VARTABLE_SIZE) {
 		return 0;
@@ -339,6 +345,57 @@ int yla_vm_stack_top(yla_vm *vm, yla_number_type *value)
 	}
 	return 1;
 }
+
+
+/*
+ * Interpretator stack of type data - CPUSH (yla_number_type), CPUSHSET (size_of_set, set)
+ */
+int yla_vm_interp_pull(yla_vm *vm, yla_number_type *type_data)
+{
+	if (!yla_vm_stack_pull(&vm->interp_stack, type_data)) {
+		vm->last_error = YLA_VM_ERROR_INTERP_STACK_EMPTY;
+		return 0;
+	}
+	return 1;
+} 
+
+/**
+ * Interp push for number - CPUSH
+ **/
+int yla_vm_interp_push(yla_vm *vm, yla_number_type type_data)
+{
+	if (!yla_vm_stack_push(&vm->interp_stack, type_data)) {
+		vm->last_error = YLA_VM_ERROR_INTERP_STACK_FULL;
+		return 0;
+	}
+	return 1;
+}
+ 
+/**
+ * Interp push for set - CPUSHSET
+ **/ 
+int yla_vm_interp_pushset(yla_vm *vm, size_t size_of_set, yla_number_type type_data)
+{
+	if (!yla_vm_stack_push(&vm->interp_stack, type_data)) {
+		vm->last_error = YLA_VM_ERROR_INTERP_STACK_FULL;
+		return 0;
+	}
+	if (!yla_vm_stack_push(&vm->interp_stack, size_of_set)) {
+		vm->last_error = YLA_VM_ERROR_INTERP_STACK_FULL;
+		return 0;
+	}
+	return 1;
+}
+
+int yla_vm_interp_top(yla_vm *vm, yla_number_type *type_data)
+{
+	if (!yla_vm_stack_top(&vm->interp_stack, type_data)) {
+		vm->last_error = YLA_VM_ERROR_INTERP_STACK_EMPTY;
+		return 0;
+	}
+	return 1;
+} 
+
 /*
 Perform command by code of operation
 */
@@ -347,7 +404,8 @@ int yla_vm_do_command_internal(yla_vm *vm, yla_cop_type cop)
 	yla_number_type op1;
 	yla_number_type op2;
 	yla_number_type res;
-
+	yla_number_type size_of_set;
+	
 	switch(cop) {
 
 		case CNOP:	
@@ -357,11 +415,34 @@ int yla_vm_do_command_internal(yla_vm *vm, yla_cop_type cop)
 			if (!yla_vm_get_value(vm, &res)) {
 				return 0;
 			}
+			if (!yla_vm_interp_push(vm, CPUSH)) {
+				return 0;
+			}
 			if (!yla_vm_stack_push(vm, res)) {
 				return 0;
 			}
 			break;
-
+		case CPUSHSET:
+			if (!yla_vm_get_value(vm, &size_of_set)) {
+				return 0;
+			}
+			if (size_of_set <= 0){
+				vm->last_error = YLA_VM_ERROR_BAD_SET_SIZE;
+				return 0;
+			}
+			if (!yla_vm_interp_pushset(vm, size_of_set, CPUSHSET)) {
+				return 0;
+			}
+			for (int i = 0; i < size_of_set; i++)
+			{
+				if (!yla_vm_get_value(vm, &op1)) {
+					return 0;
+				}
+				if (!yla_vm_stack_push(vm, op1)) {
+					return 0;
+				}
+			}
+			break;
 		case CADD:
 			if (!yla_vm_stack_pull(vm, &op1)) {
 				return 0;
@@ -461,6 +542,12 @@ char *yla_vm_error_message(int error_code)
 			return "Empty stack";
 		case YLA_VM_ERROR_STACK_FULL:
 			return "Stack full_value";
+		case YLA_VM_ERROR_BAD_SET_SIZE:
+			return "Wrong size of set";
+		case YLA_VM_ERROR_INTERP_STACK_EMPTY:
+			return "Interpretator stack of type data is empty";
+		case YLA_VM_ERROR_INTERP_STACK_FULL:
+			return "Interpretator stack of type data is full";
 		default:
 			return "Unknown error";
 	}
@@ -474,4 +561,23 @@ char *format_number(yla_number_type num)
 	char *result = calloc(1, sizeof(yla_number_type));
 	sprintf(result, "%f", num);
 	return result;
+}
+
+char *format_set(size_t size_of_set, yla_number_type *set)
+{
+	size_t size = size_of_set * 1.5;
+    char *pos = calloc(size, sizeof(yla_number_type));
+    char *result = pos;
+    
+    pos += sprintf(pos, "{");
+    for (int i = 0 ; i != 4 ; i++) {
+        if (i) {
+            pos += sprintf(pos, ", ");
+        }
+        pos += sprintf(pos, "%f", set[i]);
+    }
+    pos += sprintf(pos, "}");
+	
+	return result;
+	
 }
