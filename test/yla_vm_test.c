@@ -127,6 +127,8 @@ static int test_push_number()
     char *stL = yla_vm_last_output(&vm);
     YLATEST_ASSERT_TRUE(strcmp(stL, stResult) == 0, "It was expected that the values would coincide");
     YLATEST_ASSERT_TRUE(yla_vm_done(&vm), "normal");
+    
+    free(stResult);
 
     return 0;
 }

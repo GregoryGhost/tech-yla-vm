@@ -69,7 +69,7 @@ int yla_vm_init(yla_vm *vm, yla_cop_type *program, size_t program_size)
 	memcpy(vm->code, program + HEADER_SIZE, vm->code_size);
 	
 	vm->last_error = YLA_VM_ERROR_OK;
-
+	vm->last_output = 0;
 	return 1;
 }
 
@@ -85,6 +85,10 @@ int yla_vm_done(yla_vm *vm)
 
 	if (vm->vartable) {
 		free(vm->vartable);
+	}
+	
+	if (vm->last_output) {
+		free(vm->last_output);
 	}
 
 	yla_stack_done(&vm->stack);
@@ -174,7 +178,7 @@ char *yla_vm_last_output(yla_vm *vm)
 	if (!vm){
 		return "vm not found";
 	}
-	return vm->lastOutput;
+	return vm->last_output;
 }
 /*
 Private functions
@@ -421,7 +425,10 @@ int yla_vm_do_command_internal(yla_vm *vm, yla_cop_type cop)
 			if (!yla_vm_stack_top(vm, &res)) {
 				return 0;
 			}
-			vm->lastOutput = format_number(res);
+			if (vm->last_output) {
+				free(vm->last_output);
+			}
+			vm->last_output = format_number(res);
 			break;
 			
 		case CHALT:

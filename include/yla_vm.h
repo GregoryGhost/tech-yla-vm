@@ -73,7 +73,7 @@ typedef struct {
 	size_t pc;
 
 	int last_error;
-	char *lastOutput;
+	char *last_output;
 } yla_vm;
 
 /*
