@@ -69,7 +69,7 @@ int yla_vm_init(yla_vm *vm, yla_cop_type *program, size_t program_size)
 	memcpy(vm->code, program + HEADER_SIZE, vm->code_size);
 	
 	vm->last_error = YLA_VM_ERROR_OK;
-
+	vm->last_output = 0;
 	return 1;
 }
 
@@ -85,6 +85,10 @@ int yla_vm_done(yla_vm *vm)
 
 	if (vm->vartable) {
 		free(vm->vartable);
+	}
+	
+	if (vm->last_output) {
+		free(vm->last_output);
 	}
 
 	yla_stack_done(&vm->stack);
@@ -169,6 +173,13 @@ int yla_vm_error_text(yla_vm *vm, int error_code, char *buf, int buf_len)
 	return 0;
 }
 
+char *yla_vm_last_output(yla_vm *vm)
+{
+	if (!vm){
+		return "vm not found";
+	}
+	return vm->last_output;
+}
 /*
 Private functions
 */
@@ -183,22 +194,21 @@ int yla_vm_get_value(yla_vm *vm, yla_number_type *value)
 		return 0;
 	}
 	
-	*value = yla_vm_get_value_internal(vm->code);
+	*value = yla_vm_get_value_internal(&vm->code[vm->pc]);
 	vm->pc += sizeof(yla_number_type);
-
+	
 	return 1;
 }
 
 yla_number_type yla_vm_get_value_internal(yla_cop_type *start)
 {
-	unsigned int full_value = 0;
-	size_t i=0;
-	for (i=0; i<sizeof(yla_number_type); ++i) {
-		full_value <<= 8;
-		unsigned char byte = *start++;
-		full_value |= byte;
+	UNION_DOUBLE helper;
+	helper.num = 2.0;
+	
+	for(int i = 0; i < sizeof(yla_number_type); i++){
+		helper.chars[i] = (*(start+i));
 	}
-	return full_value;
+	return helper.num;
 }
 
 /*
@@ -253,14 +263,15 @@ int yla_vm_read_sizes(yla_vm *vm, yla_cop_type **program)
 		return 0;
 	}
 	*program += sizeof(yla_number_type);
-
+	
 	vm->vartable_size = (size_t)yla_vm_get_value_internal(*program);
 	if (vm->vartable_size > MAX_VARTABLE_SIZE) {
 		return 0;
 	}
 	*program += sizeof(yla_number_type);
-
+	
 	vm->code_size = (size_t)yla_vm_get_value_internal(*program);
+
 	if (vm->code_size > MAX_CODE_SIZE) {
 		return 0;
 	}
@@ -320,6 +331,14 @@ int yla_vm_stack_push(yla_vm *vm, yla_number_type value)
 	return 1;
 }
 
+int yla_vm_stack_top(yla_vm *vm, yla_number_type *value)
+{
+	if (!yla_stack_top(&vm->stack, value)) {
+		vm->last_error = YLA_VM_ERROR_STACK_EMPTY;
+		return 0;
+	}
+	return 1;
+}
 /*
 Perform command by code of operation
 */
@@ -335,26 +354,24 @@ int yla_vm_do_command_internal(yla_vm *vm, yla_cop_type cop)
 			break;
 
 		case CPUSH:
-			printf("PUSH!!!111\n");
 			if (!yla_vm_get_value(vm, &res)) {
 				return 0;
 			}
 			if (!yla_vm_stack_push(vm, res)) {
 				return 0;
 			}
-			printf("PUSH res=%d\n", res);
 			break;
 
 		case CADD:
-		printf("CADD!!!111");
 			if (!yla_vm_stack_pull(vm, &op1)) {
 				return 0;
 			}
 			if (!yla_vm_stack_pull(vm, &op2)) {
 				return 0;
 			}
+			
 			res = op2 + op1;
-			printf("CADD IS RUN: RES=%d + %d = %d", op2, op1, res);
+			
 			if (!yla_vm_stack_push(vm, res)) {
 				return 0;
 			}
@@ -393,7 +410,8 @@ int yla_vm_do_command_internal(yla_vm *vm, yla_cop_type cop)
 			if (!yla_vm_stack_pull(vm, &op2)) {
 				return 0;
 			}
-			if (op1==0) {
+
+			if (op1==0.0) {
 				vm->last_error = YLA_VM_ERROR_DIV_BY_ZERO;
 				return 0;
 			}
@@ -403,6 +421,16 @@ int yla_vm_do_command_internal(yla_vm *vm, yla_cop_type cop)
 			}
 			break;
 
+		case COUT:
+			if (!yla_vm_stack_top(vm, &res)) {
+				return 0;
+			}
+			if (vm->last_output) {
+				free(vm->last_output);
+			}
+			vm->last_output = format_number(res);
+			break;
+			
 		case CHALT:
 			return -1;
 
@@ -436,4 +464,14 @@ char *yla_vm_error_message(int error_code)
 		default:
 			return "Unknown error";
 	}
+}
+
+/*
+ * Format output
+ */
+char *format_number(yla_number_type num)
+{
+	char *result = calloc(1, sizeof(yla_number_type));
+	sprintf(result, "%f", num);
+	return result;
 }

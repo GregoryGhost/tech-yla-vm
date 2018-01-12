@@ -27,11 +27,13 @@
 #include <stddef.h>
 
 #define MAGIC_SIZE 3
-#define MAGIC_CODE1 0x796c
-#define MAGIC_CODE2 0x615f
-#define MAGIC_CODE3 0x766d
+#define MAGIC_CODE1 3.22
+#define MAGIC_CODE2 6.66
+#define MAGIC_CODE3 12.258
 
-#define HEADER_SIZE ((MAGIC_SIZE + 3) * sizeof(yla_number_type))
+#define spaceForCodeVartableProgramSizeSize 3
+
+#define HEADER_SIZE ((MAGIC_SIZE + spaceForCodeVartableProgramSizeSize)* sizeof(yla_number_type))
 #define MAX_CODE_SIZE ((size_t)65535)
 #define MAX_STACK_SIZE ((size_t)65535)
 #define MAX_VARTABLE_SIZE ((size_t)65535)
@@ -71,6 +73,7 @@ typedef struct {
 	size_t pc;
 
 	int last_error;
+	char *last_output;
 } yla_vm;
 
 /*
@@ -119,6 +122,20 @@ int yla_vm_last_error(yla_vm *vm);
  **/
 int yla_vm_error_text(yla_vm *vm, int error_code, char *buf, int buf_len);
 
+/**
+ * Returns last output of set.
+ * @param vm virtual machine structure
+ * @return string value output of last command COUT
+ **/
+char *yla_vm_last_output(yla_vm *vm);
+
+
+/**
+ * Returns formatted number
+ * @param number for formating
+ * @return formatted number as string
+ **/
+ char *format_number(yla_number_type num);
 /*
 TODO: Add/Remove breakpoints
 */
