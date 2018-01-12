@@ -569,14 +569,14 @@ char *format_set(size_t size_of_set, yla_number_type *set)
     char *pos = calloc(size, sizeof(yla_number_type));
     char *result = pos;
     
-    pos += sprintf(pos, "{");
+    pos += sprintf(pos, "[");
     for (int i = 0 ; i != 4 ; i++) {
         if (i) {
             pos += sprintf(pos, ", ");
         }
         pos += sprintf(pos, "%f", set[i]);
     }
-    pos += sprintf(pos, "}");
+    pos += sprintf(pos, "]");
 	
 	return result;
 	
