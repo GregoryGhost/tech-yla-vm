@@ -28,7 +28,7 @@ void yla_stack_init(yla_stack* stack, size_t size)
 {
     stack->size = size;
     stack->count = 0;
-    stack->ptr = calloc(stack->size, sizeof(int));
+    stack->ptr = calloc(stack->size, sizeof(yla_number_type));
 }
 
 void yla_stack_done(yla_stack* stack)
@@ -38,7 +38,7 @@ void yla_stack_done(yla_stack* stack)
     free(stack->ptr);
 }
 
-int yla_stack_push(yla_stack* stack, yla_int_type value)
+int yla_stack_push(yla_stack* stack, yla_number_type value)
 {
     if (stack->count >= stack->size) {
         return 0;
@@ -47,7 +47,7 @@ int yla_stack_push(yla_stack* stack, yla_int_type value)
     return 1;
 }
 
-int yla_stack_pull(yla_stack* stack, yla_int_type *result)
+int yla_stack_pull(yla_stack* stack, yla_number_type *result)
 {
     if (stack->count == 0) {
         return 0;
@@ -56,7 +56,7 @@ int yla_stack_pull(yla_stack* stack, yla_int_type *result)
     return 1;
 }
 
-int yla_stack_set_deep(yla_stack* stack, size_t index, yla_int_type value)
+int yla_stack_set_deep(yla_stack* stack, size_t index, yla_number_type value)
 {
     if (stack->count == 0) {
         return 0;
@@ -68,7 +68,7 @@ int yla_stack_set_deep(yla_stack* stack, size_t index, yla_int_type value)
     return 1;
 }
 
-int yla_stack_get_deep(yla_stack* stack, size_t index, yla_int_type *result)
+int yla_stack_get_deep(yla_stack* stack, size_t index, yla_number_type *result)
 {
     if (stack->count == 0) {
         return 0;
@@ -80,7 +80,7 @@ int yla_stack_get_deep(yla_stack* stack, size_t index, yla_int_type *result)
     return 1;
 }
 
-int yla_stack_top(yla_stack* stack, yla_int_type *result)
+int yla_stack_top(yla_stack* stack, yla_number_type *result)
 {
     if (stack->count == 0) {
         return 0;
@@ -104,7 +104,7 @@ static void dprint(yla_stack* stack)
     int i;
     printf("stack:{size: %zu, count: %zu values: ", stack->size, stack->count);
     for (i=0; i < stack->count; ++i) {
-        printf("%d ", stack->ptr[i]);
+        printf("%f ", stack->ptr[i]);
     }
     printf("}\n");
 }

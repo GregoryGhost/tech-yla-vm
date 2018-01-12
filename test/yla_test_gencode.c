@@ -28,29 +28,30 @@ void put_commd(yla_cop_type** prg, yla_cop_type value)
 	(*prg)++;
 }
 
-void put_value(yla_cop_type** prg, yla_int_type value)
+void put_value(yla_cop_type** prg, yla_number_type value)
 {
-    // NOTE: it's work OK only if yla_cop_type is 1 byte
-    int i;
-    unsigned int mask = 0xff;
-    unsigned int int_value = value;
-
-    mask <<= (8*(sizeof(unsigned int)-1));
-    int_value <<= (8*(sizeof(unsigned int) - sizeof(yla_int_type)));
-
-    for (i=0; i<sizeof(yla_int_type); ++i) {
-        unsigned int only_value = (int_value & mask);
-        only_value >>= (8*(sizeof(unsigned int)-1));
-        put_commd(prg, only_value);
-        int_value <<= 8;
+	UNION_DOUBLE helper;
+    helper.num = value;
+    for (int i = 0; i < sizeof(yla_number_type); i++)
+    {
+        put_commd(prg, helper.chars[i]);
     }
+}
+
+void put_number(yla_cop_type** prg, yla_number_type value)
+{
+	put_commd(prg, CPUSH);
+	put_value(prg, value);
 }
 
 void put_header(yla_cop_type** prg, size_t stack_size, size_t vartable_size, size_t code_size)
 {
     put_value(prg, MAGIC_CODE1);
     put_value(prg, MAGIC_CODE2);
+    
     put_value(prg, MAGIC_CODE3);
+    //NOTE: warning - size_t разбирается на double, происходит отбрасывание дробной части
+    //неявное приведение size_t к double
     put_value(prg, stack_size);
     put_value(prg, vartable_size);
     put_value(prg, code_size);
