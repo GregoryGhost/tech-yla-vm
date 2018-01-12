@@ -133,6 +133,28 @@ static int test_push_number()
     return 0;
 }
 
+static int test_negative_output()
+{
+	const size_t kCommd = 2;
+	size_t sizePrg = kCommd + 0*sizeof(yla_number_type);
+    yla_cop_type prg[HEADER_SIZE + sizePrg];
+    yla_cop_type *ptr = prg;
+    
+	const size_t stackSize = 0;
+
+    put_header(&ptr, stackSize, 0, sizePrg);
+    put_commd(&ptr, COUT);
+    put_commd(&ptr, CHALT);
+    
+    yla_vm vm;
+    YLATEST_ASSERT_TRUE(yla_vm_init(&vm, prg, HEADER_SIZE + sizePrg), "normal");
+    YLATEST_ASSERT_FALSE(yla_vm_run(&vm), "normal");
+    YLATEST_ASSERT_TRUE(yla_vm_last_error(&vm) == YLA_VM_ERROR_STACK_EMPTY, "Excepted error in work COUT command");
+    YLATEST_ASSERT_TRUE(yla_vm_done(&vm), "normal");
+
+    return 0;
+}
+
 static int test_get_stack_full()
 {
 	const int kNop = 10;
@@ -203,7 +225,8 @@ YLATEST_BEGIN(yla_vm_test)
    YLATEST_ADD_TEST_CASE(test_init_simple2)
    YLATEST_ADD_TEST_CASE(test_init_simple_run)
    YLATEST_ADD_TEST_CASE(test_push_number)
-   //YLATEST_ADD_TEST_CASE(test_get_stack_full)
+   YLATEST_ADD_TEST_CASE(test_negative_output)
+   YLATEST_ADD_TEST_CASE(test_get_stack_full)
    YLATEST_ADD_TEST_CASE(test_code_limit)
    YLATEST_ADD_TEST_CASE(test_code_get_value_internal_from_program)
 YLATEST_END
