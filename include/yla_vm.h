@@ -48,6 +48,7 @@
 #define YLA_VM_ERROR_BAD_SET_SIZE (-7)
 #define YLA_VM_ERROR_INTERP_STACK_EMPTY (-8)
 #define YLA_VM_ERROR_INTERP_STACK_FULL (-9)
+#define YLA_VM_ERROR_INTERP_STACK_UNKNOWN_COMMAND (-10)
 
 /*
 Executable program structure:

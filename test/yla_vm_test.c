@@ -159,14 +159,14 @@ static int test_negative_output()
 static int test_push_set()
 {
 	const size_t kCommd = 3;
-	size_t sizePrg = kCommd + sizeof(yla_number_type);
+	const size_t count_sets = 1;
+	size_t size_of_set = 3;
+	size_t sizePrg = kCommd + (size_of_set + count_sets) * sizeof(yla_number_type);
     yla_cop_type prg[HEADER_SIZE + sizePrg];
     yla_cop_type *ptr = prg;
     
-    const size_t size_of_set = 3;
 	const size_t stack_size = size_of_set;
-	const size_t count_sets = 1;
-	size_t interp_stack_size = size_of_set + count_sets;
+	size_t interp_stack_size = count_sets*2;
 	yla_number_type tResult[] = {3.22, 1.234, 2.228};
 	char *stResult = format_set(size_of_set, tResult);
 
@@ -180,6 +180,7 @@ static int test_push_set()
     YLATEST_ASSERT_TRUE(yla_vm_run(&vm), "normal");
     YLATEST_ASSERT_TRUE(yla_vm_last_error(&vm) == YLA_VM_ERROR_OK, "normal");
     char *stL = yla_vm_last_output(&vm);
+    //printf("stL=%s, stR=%s\n", stL, stResult);
     YLATEST_ASSERT_TRUE(strcmp(stL, stResult) == 0, "It was expected that the values would coincide");
     YLATEST_ASSERT_TRUE(yla_vm_done(&vm), "normal");
     
@@ -287,6 +288,7 @@ YLATEST_BEGIN(yla_vm_test)
    YLATEST_ADD_TEST_CASE(test_init_simple2)
    YLATEST_ADD_TEST_CASE(test_init_simple_run)
    YLATEST_ADD_TEST_CASE(test_push_number)
+    YLATEST_ADD_TEST_CASE(test_push_set)
    YLATEST_ADD_TEST_CASE(test_negative_output)
    YLATEST_ADD_TEST_CASE(test_get_interp_stack_full)
    YLATEST_ADD_TEST_CASE(test_get_stack_full)

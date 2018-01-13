@@ -49,6 +49,7 @@ codes of operations
 #define COUT	0x32
 
 #define CPUSHSET 0x33
+#define CINCLUDE 0x34
 
 #define CHALT	0xff
 

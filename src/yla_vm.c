@@ -41,6 +41,27 @@ int yla_vm_read_sizes(yla_vm *vm, yla_cop_type **program);
 int yla_vm_do_command_internal(yla_vm *vm, yla_cop_type cop);
 
 char *yla_vm_error_message(int error_code);
+
+//yla_vm_stack
+int yla_vm_stack_pull(yla_vm *vm, yla_number_type *value);
+int yla_vm_stack_push(yla_vm *vm, yla_number_type value);
+int yla_vm_stack_top(yla_vm *vm, yla_number_type *value);
+yla_number_type *yla_vm_stack_pull_set(yla_vm *vm, size_t *size_of_set);
+
+int yla_vm_print_stack_elements(yla_vm *vm);
+
+//yla_vm_interp
+int yla_vm_interp_pull(yla_vm *vm, yla_number_type *type_data);
+int yla_vm_interp_push(yla_vm *vm);
+int yla_vm_interp_push(yla_vm *vm);
+int yla_vm_interp_pushset(yla_vm *vm, size_t size_of_set);
+int yla_vm_interp_top(yla_vm *vm, yla_number_type *type_data);
+
+
+
+//Format output
+char *format_number(yla_number_type num);
+char *format_set(size_t size_of_set, yla_number_type *set);
 /*
 Public functions
 */
@@ -321,6 +342,9 @@ Stack
 
 int yla_vm_stack_pull(yla_vm *vm, yla_number_type *value)
 {
+	if (!vm) {
+		return 0;
+	}
 	if (!yla_stack_pull(&vm->stack, value)) {
 		vm->last_error = YLA_VM_ERROR_STACK_EMPTY;
 		return 0;
@@ -346,13 +370,47 @@ int yla_vm_stack_top(yla_vm *vm, yla_number_type *value)
 	return 1;
 }
 
+yla_number_type *yla_vm_stack_pull_set(yla_vm *vm, size_t *size_of_set)
+{
+	yla_number_type size_set;
+	if (!yla_vm_interp_pull(vm, &size_set)) {
+		return NULL;
+	}
+	*size_of_set = (yla_number_type)size_set; 
+	size_t size = *size_of_set;
+	if (size <= 0){
+		vm->last_error = YLA_VM_ERROR_BAD_SET_SIZE;
+		return NULL;
+	}
+	yla_number_type *set = (yla_number_type *)calloc(size, sizeof(yla_number_type));
+	yla_number_type *pos = set;
+	if (set == NULL) {
+		vm->last_error = YLA_VM_ERROR_CODE_SEG_EXCEED;
+		return 0;
+	}
+	yla_number_type op1;
+	for (int i = 0; i < size; i++) 
+	{
+		if (!yla_vm_stack_pull(vm, &op1)) {
+			return NULL;
+		}
+		set[size-i-1] = (yla_number_type)op1;
+	}
+	return set;
+}
 
+/*
+int yla_vm_stack_push_set(yla_vm *vm, yla_number_type *set)
+{
+
+}
+*/
 /*
  * Interpretator stack of type data - CPUSH (yla_number_type), CPUSHSET (size_of_set, set)
  */
 int yla_vm_interp_pull(yla_vm *vm, yla_number_type *type_data)
 {
-	if (!yla_vm_stack_pull(&vm->interp_stack, type_data)) {
+	if (!yla_stack_pull(&vm->interp_stack, type_data)) {
 		vm->last_error = YLA_VM_ERROR_INTERP_STACK_EMPTY;
 		return 0;
 	}
@@ -362,9 +420,9 @@ int yla_vm_interp_pull(yla_vm *vm, yla_number_type *type_data)
 /**
  * Interp push for number - CPUSH
  **/
-int yla_vm_interp_push(yla_vm *vm, yla_number_type type_data)
+int yla_vm_interp_push(yla_vm *vm)
 {
-	if (!yla_vm_stack_push(&vm->interp_stack, type_data)) {
+	if (!yla_stack_push(&vm->interp_stack, (yla_number_type)CPUSH)) {
 		vm->last_error = YLA_VM_ERROR_INTERP_STACK_FULL;
 		return 0;
 	}
@@ -374,13 +432,13 @@ int yla_vm_interp_push(yla_vm *vm, yla_number_type type_data)
 /**
  * Interp push for set - CPUSHSET
  **/ 
-int yla_vm_interp_pushset(yla_vm *vm, size_t size_of_set, yla_number_type type_data)
+int yla_vm_interp_pushset(yla_vm *vm, size_t size_of_set)
 {
-	if (!yla_vm_stack_push(&vm->interp_stack, type_data)) {
+	if (!yla_stack_push(&vm->interp_stack, (yla_number_type)size_of_set)) {
 		vm->last_error = YLA_VM_ERROR_INTERP_STACK_FULL;
 		return 0;
 	}
-	if (!yla_vm_stack_push(&vm->interp_stack, size_of_set)) {
+	if (!yla_stack_push(&vm->interp_stack, (yla_number_type)CPUSHSET)) {
 		vm->last_error = YLA_VM_ERROR_INTERP_STACK_FULL;
 		return 0;
 	}
@@ -389,7 +447,7 @@ int yla_vm_interp_pushset(yla_vm *vm, size_t size_of_set, yla_number_type type_d
 
 int yla_vm_interp_top(yla_vm *vm, yla_number_type *type_data)
 {
-	if (!yla_vm_stack_top(&vm->interp_stack, type_data)) {
+	if (!yla_stack_top(&vm->interp_stack, type_data)) {
 		vm->last_error = YLA_VM_ERROR_INTERP_STACK_EMPTY;
 		return 0;
 	}
@@ -405,6 +463,13 @@ int yla_vm_do_command_internal(yla_vm *vm, yla_cop_type cop)
 	yla_number_type op2;
 	yla_number_type res;
 	yla_number_type size_of_set;
+	yla_number_type size_of_set2;
+	yla_number_type *set1 = NULL;
+	yla_number_type *set2 = NULL;
+	yla_number_type *rset = NULL;
+	yla_number_type *size_of_rset = NULL;
+	size_t size_of_set1;
+	yla_number_type cmd;
 	
 	switch(cop) {
 
@@ -415,7 +480,7 @@ int yla_vm_do_command_internal(yla_vm *vm, yla_cop_type cop)
 			if (!yla_vm_get_value(vm, &res)) {
 				return 0;
 			}
-			if (!yla_vm_interp_push(vm, CPUSH)) {
+			if (!yla_vm_interp_push(vm)) {
 				return 0;
 			}
 			if (!yla_vm_stack_push(vm, res)) {
@@ -430,7 +495,7 @@ int yla_vm_do_command_internal(yla_vm *vm, yla_cop_type cop)
 				vm->last_error = YLA_VM_ERROR_BAD_SET_SIZE;
 				return 0;
 			}
-			if (!yla_vm_interp_pushset(vm, size_of_set, CPUSHSET)) {
+			if (!yla_vm_interp_pushset(vm, size_of_set)) {
 				return 0;
 			}
 			for (int i = 0; i < size_of_set; i++)
@@ -444,19 +509,67 @@ int yla_vm_do_command_internal(yla_vm *vm, yla_cop_type cop)
 			}
 			break;
 		case CADD:
-			if (!yla_vm_stack_pull(vm, &op1)) {
+			/*if (!yla_vm_interp_pull(vm, &cmd)) {
 				return 0;
 			}
-			if (!yla_vm_stack_pull(vm, &op2)) {
-				return 0;
+			switch (cmd) {
+				case CPUSH:
+					//get_number*/
+					if (!yla_vm_stack_pull(vm, &op1)) {
+						return 0;
+					}
+					if (!yla_vm_stack_pull(vm, &op2)) {
+						return 0;
+					}
+					
+					res = op2 + op1;
+					if (!yla_vm_interp_push(vm)) {
+						return 0;
+					}
+					if (!yla_vm_stack_push(vm, res)) {
+						return 0;
+					}
+					break;
+				/*case CPUSHSET:
+					//TODO: переписать эту нерабочую хрень
+					//TODO: выделить функцию по получению элементов множества из стека - yla_vm_stack_pull_set
+					//TODO: выделить функцию по запихиванию множества в стек - yla_vm_stack_push_set
+					//TODO: написать функцию по объединению двух множеств и возвращению отсортированного и без дублей 
+					//		результурующее множество
+					if (!yla_vm_interp_pull(vm, &size_of_set)) {
+						return 0;
+					}
+					if (size_of_set <= 0){
+						vm->last_error = YLA_VM_ERROR_BAD_SET_SIZE;
+						return 0;
+					}
+					if (!yla_vm_interp_pushset(vm, size_of_set, CPUSHSET)) {
+						return 0;
+					}
+					for (int i = 0; i < size_of_set; i++)
+					{
+						if (!yla_vm_get_value(vm, &op1)) {
+							return 0;
+						}
+						if (!yla_vm_stack_push(vm, op1)) {
+							return 0;
+						}
+					}
+					
+					res = union_sets(size_of_set, size_of_set2, set1, set2, size_of_rset);
+					
+					if (!yla_vm_interp_push(vm, size_of_rset, rset)) {
+						return 0;
+					}
+					if (!yla_vm_stack_push(vm, rset)) {
+						return 0;
+					}
+					break;
+				default:
+					vm->last_error = YLA_VM_ERROR_UNKNOWN_COMMAND;
+					return 0;
 			}
-			
-			res = op2 + op1;
-			
-			if (!yla_vm_stack_push(vm, res)) {
-				return 0;
-			}
-			break;
+			break;*/
 
 		case CSUB: 
 			if (!yla_vm_stack_pull(vm, &op1)) {
@@ -503,15 +616,35 @@ int yla_vm_do_command_internal(yla_vm *vm, yla_cop_type cop)
 			break;
 
 		case COUT:
-			if (!yla_vm_stack_top(vm, &res)) {
+			if (!yla_vm_interp_pull(vm, &cmd)) {
 				return 0;
 			}
-			if (vm->last_output) {
-				free(vm->last_output);
+			switch((yla_cop_type)cmd){
+				case CPUSH:
+					if (!yla_vm_stack_top(vm, &res)) {
+						return 0;
+					}
+					if (vm->last_output) {
+						free(vm->last_output);
+					}
+					vm->last_output = format_number(res);
+					break;
+				case CPUSHSET:
+					set1 = yla_vm_stack_pull_set(vm, &size_of_set1);
+					if (set1 == NULL) {
+						return 0;
+					}
+					if (vm->last_output) {
+						free(vm->last_output);
+					}
+					vm->last_output = format_set(size_of_set1, set1);
+					free(set1);
+					break;
+				default:
+					vm->last_error = YLA_VM_ERROR_INTERP_STACK_UNKNOWN_COMMAND;
+					return 0;
 			}
-			vm->last_output = format_number(res);
 			break;
-			
 		case CHALT:
 			return -1;
 
@@ -522,6 +655,16 @@ int yla_vm_do_command_internal(yla_vm *vm, yla_cop_type cop)
 	return 1;
 }
 
+/*
+ * Operations with set
+ */
+//TODO: перенести сигнатуры данных функций в yla_vm.h как общедоступные функции
+/*
+yla_number_type *union_sets(size_t size_of_set, size_t size_of_set2, yla_number_type *set1, yla_number_type *set2, size_t size_of_rset);
+{
+	
+}
+*/
 /*
 Error messages
 */
@@ -548,11 +691,28 @@ char *yla_vm_error_message(int error_code)
 			return "Interpretator stack of type data is empty";
 		case YLA_VM_ERROR_INTERP_STACK_FULL:
 			return "Interpretator stack of type data is full";
+		case YLA_VM_ERROR_INTERP_STACK_UNKNOWN_COMMAND:
+			return "Interpretator stack found unknown command";
 		default:
 			return "Unknown error";
 	}
 }
 
+
+int yla_vm_print_stack_elements(yla_vm *vm)
+{
+	yla_number_type op1 = 0.0;
+	yla_stack *stack = &vm->stack;
+	for (int i = 0; i < stack->count; i++)
+	{
+		if (!yla_stack_get_deep(stack, i, &op1)) {
+			vm->last_error = YLA_VM_ERROR_CODE_SEG_EXCEED;
+			return 0;
+		}
+		printf("element=%f\n", op1);
+	}
+	return 1;
+}
 /*
  * Format output
  */
@@ -570,14 +730,13 @@ char *format_set(size_t size_of_set, yla_number_type *set)
     char *result = pos;
     
     pos += sprintf(pos, "[");
-    for (int i = 0 ; i != 4 ; i++) {
+    for (int i = 0 ; i < size_of_set ; i++) {
         if (i) {
             pos += sprintf(pos, ", ");
         }
         pos += sprintf(pos, "%f", set[i]);
     }
-    pos += sprintf(pos, "]");
+    pos += sprintf(pos, "%s", "]\0");
 	
 	return result;
-	
 }
