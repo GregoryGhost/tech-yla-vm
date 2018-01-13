@@ -149,7 +149,7 @@ static int test_negative_output()
     yla_vm vm;
     YLATEST_ASSERT_TRUE(yla_vm_init(&vm, prg, HEADER_SIZE + sizePrg), "normal");
     YLATEST_ASSERT_FALSE(yla_vm_run(&vm), "normal");
-    YLATEST_ASSERT_TRUE(yla_vm_last_error(&vm) == YLA_VM_ERROR_STACK_EMPTY, "Excepted error in work COUT command");
+    YLATEST_ASSERT_TRUE(yla_vm_last_error(&vm) == YLA_VM_ERROR_INTERP_STACK_EMPTY, "Excepted error in work COUT command");
     YLATEST_ASSERT_TRUE(yla_vm_done(&vm), "normal");
 
     return 0;
@@ -237,7 +237,7 @@ static int test_get_stack_full()
 
     YLATEST_ASSERT_TRUE(yla_vm_init(&vm, prg, HEADER_SIZE + sizePrg), "normal");
     YLATEST_ASSERT_FALSE(yla_vm_run(&vm), "normal");
-    printf("%s\n", yla_vm_error_message(yla_vm_last_error(&vm)));
+    //printf("%s\n", yla_vm_error_message(yla_vm_last_error(&vm)));
     YLATEST_ASSERT_TRUE(yla_vm_last_error(&vm) == YLA_VM_ERROR_STACK_FULL, "incorrect error code");
     YLATEST_ASSERT_TRUE(yla_vm_done(&vm), "normal");
 
@@ -288,7 +288,7 @@ YLATEST_BEGIN(yla_vm_test)
    YLATEST_ADD_TEST_CASE(test_init_simple2)
    YLATEST_ADD_TEST_CASE(test_init_simple_run)
    YLATEST_ADD_TEST_CASE(test_push_number)
-    YLATEST_ADD_TEST_CASE(test_push_set)
+   YLATEST_ADD_TEST_CASE(test_push_set)
    YLATEST_ADD_TEST_CASE(test_negative_output)
    YLATEST_ADD_TEST_CASE(test_get_interp_stack_full)
    YLATEST_ADD_TEST_CASE(test_get_stack_full)
