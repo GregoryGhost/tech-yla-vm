@@ -49,6 +49,7 @@
 #define YLA_VM_ERROR_INTERP_STACK_EMPTY (-8)
 #define YLA_VM_ERROR_INTERP_STACK_FULL (-9)
 #define YLA_VM_ERROR_INTERP_STACK_UNKNOWN_COMMAND (-10)
+#define YLA_VM_ERROR_CALLOC_SET (-11)
 
 /*
 Executable program structure:
@@ -130,6 +131,13 @@ int yla_vm_last_error(yla_vm *vm);
 int yla_vm_error_text(yla_vm *vm, int error_code, char *buf, int buf_len);
 
 /**
+ * Returns text of last error.
+ * @param error_code code of error occurred
+ * @return error code as text error
+ **/
+char *yla_vm_error_message(int error_code);
+
+/**
  * Returns last output of set.
  * @param vm virtual machine structure
  * @return string value output of last command COUT
@@ -151,6 +159,18 @@ char *yla_vm_last_output(yla_vm *vm);
  * @return formatted elements of set as string
  **/
  char *format_set(size_t size_of_set, yla_number_type *set);
+ 
+ /**
+ * Returns sorted and without dubles a union of two sets
+ * @param vm virtual machine structure
+ * @param count of elements first sets
+ * @param count of elements second sets
+ * @param first set
+ * @param second set
+ * @param count of elements result of union a sets
+ * @return resulting set is result of union a sets
+ **/
+ yla_number_type *union_sets(yla_vm *vm, size_t size_of_set1, size_t size_of_set2, yla_number_type *set1, yla_number_type *set2, size_t *size_of_rset);
 /*
 TODO: Add/Remove breakpoints
 */

@@ -24,8 +24,8 @@ YLATEST_SUITE_BEGIN(yla_suite)
   YLATEST_ADD_TEST(yla_test_test)
   YLATEST_ADD_TEST(yla_stack_test)
   YLATEST_ADD_TEST(yla_vm_test)
-  //YLATEST_ADD_TEST(yla_vm_math_number_test)
-  //YLATEST_ADD_TEST(yla_vm_math_set_test)
+  YLATEST_ADD_TEST(yla_vm_math_number_test)
+  YLATEST_ADD_TEST(yla_vm_math_set_test)
 YLATEST_SUITE_END
 
 
