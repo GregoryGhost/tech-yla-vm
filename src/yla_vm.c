@@ -516,7 +516,7 @@ int yla_vm_do_command_internal(yla_vm *vm, yla_cop_type cop)
 				return 0;
 			}
 			if ((size_of_set <= 0) 
-				|| (size_of_set > vm->interp_stack.size)){
+				|| (size_of_set > vm->stack.size)){
 				vm->last_error = YLA_VM_ERROR_BAD_SET_SIZE;
 				return 0;
 			}

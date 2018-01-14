@@ -166,7 +166,7 @@ static int test_push_set()
     yla_cop_type *ptr = prg;
     
 	const size_t stack_size = size_of_set;
-	size_t interp_stack_size = count_sets*2;
+	size_t interp_stack_size = count_sets * 2;
 	yla_number_type tResult[] = {3.22, 1.234, 2.228};
 	char *stResult = format_set(size_of_set, tResult);
 
@@ -178,6 +178,8 @@ static int test_push_set()
     
     YLATEST_ASSERT_TRUE(yla_vm_init(&vm, prg, HEADER_SIZE + sizePrg), "normal");
     YLATEST_ASSERT_TRUE(yla_vm_run(&vm), "normal");
+    //yla_vm_run(&vm);
+    //printf("%s\n", yla_vm_error_message(yla_vm_last_error(&vm)));
     YLATEST_ASSERT_TRUE(yla_vm_last_error(&vm) == YLA_VM_ERROR_OK, "normal");
     char *stL = yla_vm_last_output(&vm);
     //printf("stL=%s, stR=%s\n", stL, stResult);

@@ -48,7 +48,7 @@ static int test_positive_union_of_sets_one_size()
 	const size_t kCommd = 5;
 	const size_t size_of_set = 3;
 	const size_t count_sets = 2;
-	const size_t count_for_size_of_set = 2;
+	size_t count_for_size_of_set = size_of_set * count_sets;
 	size_t stack_size = size_of_set * count_sets;
 	
 	size_t sizePrg = kCommd + (count_for_size_of_set + stack_size) * sizeof(yla_number_type);
