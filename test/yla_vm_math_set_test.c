@@ -48,7 +48,7 @@ static int test_positive_union_of_sets_one_size()
 	const size_t kCommd = 5;
 	const size_t size_of_set = 3;
 	const size_t count_sets = 2;
-	size_t count_for_size_of_set = size_of_set * count_sets;
+	size_t count_for_size_of_set =  count_sets;
 	size_t stack_size = size_of_set * count_sets;
 	
 	size_t sizePrg = kCommd + (count_for_size_of_set + stack_size) * sizeof(yla_number_type);
@@ -144,7 +144,39 @@ static int test_positive_union_of_sets_other_size()
 
 static int test_negative_union_of_sets()
 {
+	const size_t kCommd = 5;
+	const size_t size_of_set = 3;
+	const size_t count_sets = 1;
+	const size_t count_number = 1;
+	size_t count_for_size_of_set = count_sets;
+	size_t stack_size = size_of_set + count_number;
+	
+	size_t sizePrg = kCommd + (count_for_size_of_set + stack_size) * sizeof(yla_number_type);
+    yla_cop_type prg[HEADER_SIZE + sizePrg];
+    yla_cop_type *ptr = prg;
+    
+	size_t interp_stack_size = count_sets + count_for_size_of_set + count_number;
+	yla_number_type set1[] = {3.234, 4, 2.22};
+	yla_number_type number = 32.22;
+	size_t size_of_rset;
+	
+	//NOTE: [3.234, 4, 2.22] 32.22 + = YLA_VM_ERROR_INTERP_STACK_UNKNOWN_COMMAND
+    put_header_ext(&ptr, stack_size, interp_stack_size, 0, sizePrg);
+    put_set(&ptr, size_of_set, set1);
+    put_number(&ptr, number);
+    put_commd(&ptr, CADD);
+    put_commd(&ptr, COUT);
+    put_commd(&ptr, CHALT);
+    
+    yla_vm vm;
+    YLATEST_ASSERT_TRUE(yla_vm_init(&vm, prg, HEADER_SIZE + sizePrg), "normal");
+    //yla_vm_run(&vm);
+    YLATEST_ASSERT_FALSE(yla_vm_run(&vm), "normal");
+    printf("%s\n", yla_vm_error_message(yla_vm_last_error(&vm)));
+    YLATEST_ASSERT_TRUE(yla_vm_last_error(&vm) == YLA_VM_ERROR_INTERP_STACK_UNKNOWN_COMMAND, "Excepted interp unknown command");
+    YLATEST_ASSERT_TRUE(yla_vm_done(&vm), "normal");
 
+    return 0;
 }
 
 static int test_positive_include_of_sets()
@@ -170,11 +202,11 @@ static int test_negative_intersection_of_sets()
 YLATEST_BEGIN(yla_vm_math_set_test)
    YLATEST_ADD_TEST_CASE(test_positive_union_of_sets_one_size)
    YLATEST_ADD_TEST_CASE(test_positive_union_of_sets_other_size)
-   /*YLATEST_ADD_TEST_CASE(test_negative_union_of_sets)
+   YLATEST_ADD_TEST_CASE(test_negative_union_of_sets)
    
-   YLATEST_ADD_TEST_CASE(test_positive_include_of_sets)
-   YLATEST_ADD_TEST_CASE(test_negative_include_of_sets)
+   //YLATEST_ADD_TEST_CASE(test_positive_include_of_sets)
+   //YLATEST_ADD_TEST_CASE(test_negative_include_of_sets)
    
-   YLATEST_ADD_TEST_CASE(test_positive_intersection_of_sets)
-   YLATEST_ADD_TEST_CASE(test_negative_intersection_of_sets)*/
+   //YLATEST_ADD_TEST_CASE(test_positive_intersection_of_sets)
+   //YLATEST_ADD_TEST_CASE(test_negative_intersection_of_sets)
 YLATEST_END

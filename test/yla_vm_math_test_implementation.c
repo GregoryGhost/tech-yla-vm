@@ -82,7 +82,7 @@ static int test_negative_add_two_numbers()
     yla_vm vm;
     YLATEST_ASSERT_TRUE(yla_vm_init(&vm, prg, HEADER_SIZE + sizePrg + sizeCommd), "normal");
     YLATEST_ASSERT_FALSE(yla_vm_run(&vm), "normal");
-    YLATEST_ASSERT_TRUE(yla_vm_last_error(&vm) == YLA_VM_ERROR_STACK_EMPTY, "Expected error for wrong arguments CADD");
+    YLATEST_ASSERT_TRUE(yla_vm_last_error(&vm) == YLA_VM_ERROR_INTERP_STACK_EMPTY, "Expected error for wrong arguments CADD");
     YLATEST_ASSERT_TRUE(yla_vm_done(&vm), "normal");  
     
     return 0;
@@ -158,7 +158,7 @@ static int test_negative_add_some_numbers()
     yla_vm vm;
     YLATEST_ASSERT_TRUE(yla_vm_init(&vm, prg, HEADER_SIZE + sizePrg + sizeCommd), "normal");
 	YLATEST_ASSERT_FALSE(yla_vm_run(&vm), "normal");
-    YLATEST_ASSERT_TRUE(yla_vm_last_error(&vm) == YLA_VM_ERROR_STACK_EMPTY, "Expected error for wrong arguments CADD");
+    YLATEST_ASSERT_TRUE(yla_vm_last_error(&vm) == YLA_VM_ERROR_INTERP_STACK_EMPTY, "Expected error for wrong arguments CADD");
     YLATEST_ASSERT_TRUE(yla_vm_done(&vm), "normal");
     
     return 0;

@@ -542,6 +542,16 @@ int yla_vm_do_command_internal(yla_vm *vm, yla_cop_type cop)
 					if (!yla_vm_stack_pull(vm, &op1)) {
 						return 0;
 					}
+					
+					if (!yla_vm_interp_pull(vm, &cmd)) {
+						return 0;
+					}
+
+					if (((int)cmd) != CPUSH) {
+						vm->last_error = YLA_VM_ERROR_INTERP_STACK_UNKNOWN_COMMAND;
+						return 0;
+					}
+					
 					if (!yla_vm_stack_pull(vm, &op2)) {
 						return 0;
 					}
