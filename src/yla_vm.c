@@ -882,6 +882,27 @@ static int compare (const void * a, const void * b)
   else return 0;  
 }
 
+int union_of_sets(const yla_number_type a[], int n1, const yla_number_type b[], int n2, yla_number_type c[]){
+    int n = 0, i = 0, j = 0;
+ 
+    while((i < n1) && (j < n2)){
+        if(a[i] < b[j])
+            c[n++] = a[i++];
+        else if(a[i] > b[j])
+            c[n++] = b[j++];
+        else {
+            c[n++] = a[i++];
+            ++j;
+        }
+    }
+ 
+    while(i < n1)
+        c[n++] = a[i++];
+    while(j < n2)
+        c[n++] = b[j++];
+    return n;
+}
+
 yla_number_type *union_sets(yla_vm *vm, size_t size_of_set1, size_t size_of_set2, yla_number_type *set1, yla_number_type *set2, size_t *size_of_rset)
 {
 	if (vm == NULL) {
@@ -901,17 +922,9 @@ yla_number_type *union_sets(yla_vm *vm, size_t size_of_set1, size_t size_of_set2
 		vm->last_error = YLA_VM_ERROR_CALLOC_SET;
 		return NULL;
 	}
-	for (int i = 0; i < size_of_set1; i++)
-	{
-		rset[i] = set1[i];
-	}
-	int j = 0;
-	int size = *size_of_rset;
-	for (int i = size_of_set1; i < size; i++)
-	{
-		rset[i] = set2[j];
-		j++;
-	}
+
+	*size_of_rset = union_of_sets(set1, size_of_set1, set2, size_of_set2, rset);
+
 	qsort(rset, *size_of_rset, sizeof(yla_number_type), compare);
 	return rset;
 }
@@ -931,6 +944,7 @@ yla_number_type include_of_set(yla_vm *vm, size_t size_of_set, yla_number_type *
 	}
 	yla_number_type result = 0.0;
 	
+	
 	for (int i = 0; i < size_of_set; i++)
 	{
 		if (number == set1[i]) {
@@ -940,6 +954,45 @@ yla_number_type include_of_set(yla_vm *vm, size_t size_of_set, yla_number_type *
 	}
 	return result;
 }
+
+yla_number_type *intersection_of_sorted_sets(yla_number_type arr1[], yla_number_type arr2[], size_t m, size_t n, size_t *size_rset)
+{
+  size_t i = 0, j = 0;
+  *size_rset = m+n;
+  yla_number_type *rset = (yla_number_type*)calloc(*size_rset, sizeof(yla_number_type));
+  int k = 0;
+  
+  while (i < m && j < n)
+  {
+    if (arr1[i] < arr2[j]) {
+      i++;
+    }
+    else {
+    	if (arr2[j] < arr1[i]) {
+			j++;
+		}
+		else /*if (arr1[i] == arr2[j])*/
+		{
+			rset[k] = arr2[j++];
+			k++;
+			i++;
+		}
+    }
+  }
+  *size_rset = k;
+  
+  yla_number_type *tempset = (yla_number_type*)calloc(*size_rset, sizeof(yla_number_type));
+  
+  for (int i = 0; i < *size_rset; i++){
+  	tempset[i] = rset[i];
+  }
+  
+  free(rset);
+  
+  rset = tempset;
+  return rset;
+}
+
 
 yla_number_type *intersection_of_sets(yla_vm *vm, size_t size_of_set1, size_t size_of_set2, yla_number_type *set1, yla_number_type *set2, size_t *size_of_rset)
 {
@@ -954,32 +1007,13 @@ yla_number_type *intersection_of_sets(yla_vm *vm, size_t size_of_set1, size_t si
 		vm->last_error = YLA_VM_ERROR_CODE_SEG_EXCEED;
 		return NULL;
 	}
-	size_t intersection = 0;
-	for (int i = 0; i < size_of_set1; i++)
-	{
-		for (int j = 0; j < size_of_set2; j++)
-		{
-			if (set1[i] == set2[j]) {
-				intersection++;
-			}
-		}
-	}
-	*size_of_rset = intersection;
-	yla_number_type *rset = (yla_number_type *)calloc(*size_of_rset, sizeof(yla_number_type));
+
+	qsort(set1, size_of_set1, sizeof(yla_number_type), compare);
+	qsort(set2, size_of_set2, sizeof(yla_number_type), compare);
+	yla_number_type *rset = intersection_of_sorted_sets(set1, set2, size_of_set1, size_of_set2, size_of_rset);
 	if (rset == NULL) {
 		vm->last_error = YLA_VM_ERROR_CALLOC_SET;
 		return NULL;
-	}
-	int k = 0;
-	for (int i = 0; i < size_of_set1; i++)
-	{
-		for (int j = 0; j < size_of_set2; j++)
-		{
-			if (set1[i] == set2[j]) {
-				rset[k] = set1[i];
-				k++;
-			}
-		}
 	}
 	qsort(rset, *size_of_rset, sizeof(yla_number_type), compare);
 	return rset;

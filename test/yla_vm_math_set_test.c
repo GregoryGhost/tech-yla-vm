@@ -24,14 +24,6 @@
 #include "../include/yla_test_gencode.h"
 #include "../include/yla_type.h"
 #include <stdlib.h>
-
-/**
- * Negative test set
- * [2,4,5] 11 *
- * 
- * 11 [2,3,4] *
- * 66 [3,2,6] +
- **/
  
 static int test_positive_union_of_sets_one_size()
 {
@@ -58,8 +50,7 @@ static int test_positive_union_of_sets_one_size()
 	YLATEST_ASSERT_TRUE(yla_vm_last_error(&vm_empty) == YLA_VM_ERROR_OK, "excepted without error");
 	char *stResult = format_set(size_of_rset, rSet);
 	
-	//NOTE: должно быть [3.234, 4, 2.22] [2, 3.3, 4] + = [2, 2.22, 3.234, 3.3, 4]
-	//NOTE: но вот так  [3.234, 4, 2.22] [2, 3.3, 4] + = [3.234, 4, 2.22, 2, 3.3, 4]
+	//[3.234, 4, 2.22] [2, 3.3, 4] + = [2, 2.22, 3.234, 3.3, 4]
     put_header_ext(&ptr, stack_size, interp_stack_size, 0, sizePrg);
     put_set(&ptr, size_of_set, set1);
     put_set(&ptr, size_of_set, set2);
@@ -108,8 +99,7 @@ static int test_positive_union_of_sets_other_size()
 	YLATEST_ASSERT_TRUE(yla_vm_last_error(&vm_empty) == YLA_VM_ERROR_OK, "excepted without error");
 	char *stResult = format_set(size_of_rset, rSet);
 	
-	//NOTE: должно быть [3.234, 4, 2.22] [2, 3.3, 4, 12.28, 322.666] + = [2, 2.22, 3.234, 3.3, 4, 12.28, 322.666]
-	//NOTE: но вот так  [3.234, 4, 2.22] [2, 3.3, 4, 12.28, 322.666] + = [2, 2.22, 3.234, 3.3, 4, 4, 12.28, 322.666]
+	//[3.234, 4, 2.22] [2, 3.3, 4, 12.28, 322.666] + = [2, 2.22, 3.234, 3.3, 4, 12.28, 322.666]
     put_header_ext(&ptr, stack_size, interp_stack_size, 0, sizePrg);
     put_set(&ptr, size_of_set1, set1);
     put_set(&ptr, size_of_set2, set2);
@@ -313,8 +303,7 @@ static int test_positive_intersection_of_sets_one_size()
 	YLATEST_ASSERT_TRUE(yla_vm_last_error(&vm_empty) == YLA_VM_ERROR_OK, "excepted without error");
 	char *stResult = format_set(size_of_rset, result);
 	
-	//NOTE: должно быть вот так [3, 3.22, 3] [3.234, 3.22, 3] * = [3, 3.22]
-	//NOTE: но пока только так  [3, 3.22, 3] [3.234, 3.22, 3] * = [3, 3.22, 3]
+	//[3, 3.22, 3] [3.234, 3.22, 3] * = [3, 3.22]
     put_header_ext(&ptr, stack_size, interp_stack_size, 0, sizePrg);
     put_set(&ptr, size_of_set, set1);
     put_set(&ptr, size_of_set, set2);
@@ -362,8 +351,7 @@ static int test_positive_intersection_of_sets_other_size()
 	YLATEST_ASSERT_TRUE(yla_vm_last_error(&vm_empty) == YLA_VM_ERROR_OK, "excepted without error");
 	char *stResult = format_set(size_of_rset, rSet);
 	
-	//NOTE: должно быть [3.234, 4, 2.22] [2, 3.3, 4, 4, 322.666] * = [4]
-	//NOTE: но вот так  [3.234, 4, 2.22] [2, 3.3, 4, 12.28, 322.666] * = [4, 4]
+	//[3.234, 4, 2.22] [2, 3.3, 4, 4, 322.666] * = [4]
     put_header_ext(&ptr, stack_size, interp_stack_size, 0, sizePrg);
     put_set(&ptr, size_of_set1, set1);
     put_set(&ptr, size_of_set2, set2);
