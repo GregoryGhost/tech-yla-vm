@@ -642,6 +642,7 @@ int yla_vm_do_command_internal(yla_vm *vm, yla_cop_type cop)
 					if (!yla_vm_stack_push(vm, res)) {
 						return 0;
 					}
+					break;
 				case CPUSHSET:
 					set1 = yla_vm_stack_pull_set(vm, &size_of_set1);
 					if (set1 == NULL) {

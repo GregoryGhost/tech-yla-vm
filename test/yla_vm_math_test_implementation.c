@@ -332,6 +332,8 @@ static int test_positive_mult_two_numbers()
     yla_vm vm;
     YLATEST_ASSERT_TRUE(yla_vm_init(&vm, prg, HEADER_SIZE + sizePrg + sizeCommd), "normal");
     YLATEST_ASSERT_TRUE(yla_vm_run(&vm), "normal");
+    //yla_vm_run(&vm);
+    //printf("%s\n", yla_vm_error_message(yla_vm_last_error(&vm)));
     char *exceptedResult = yla_vm_last_output(&vm);
     YLATEST_ASSERT_TRUE(strcmp(exceptedResult, stResult) == 0, "It was expected that the values would coincide");
     YLATEST_ASSERT_TRUE(yla_vm_done(&vm), "normal");
@@ -363,7 +365,7 @@ static int test_negative_mult_two_numbers()
     yla_vm vm;
     YLATEST_ASSERT_TRUE(yla_vm_init(&vm, prg, HEADER_SIZE + sizePrg + sizeCommd), "normal");
 	YLATEST_ASSERT_FALSE(yla_vm_run(&vm), "normal");
-    YLATEST_ASSERT_TRUE(yla_vm_last_error(&vm) == YLA_VM_ERROR_STACK_EMPTY, "Expected error for wrong arguments CMULT");
+    YLATEST_ASSERT_TRUE(yla_vm_last_error(&vm) == YLA_VM_ERROR_INTERP_STACK_EMPTY, "Expected error for wrong arguments CMULT");
     YLATEST_ASSERT_TRUE(yla_vm_done(&vm), "normal");
     
     return 0;
@@ -403,6 +405,8 @@ static int test_positive_mult_some_numbers()
     yla_vm vm;
     YLATEST_ASSERT_TRUE(yla_vm_init(&vm, prg, HEADER_SIZE + sizePrg + sizeCommd), "normal");
     YLATEST_ASSERT_TRUE(yla_vm_run(&vm), "normal");
+    //yla_vm_run(&vm);
+    //printf("%s\n", yla_vm_error_message(yla_vm_last_error(&vm)));
     char *stL = yla_vm_last_output(&vm);
     YLATEST_ASSERT_TRUE(strcmp(stL, stResult) == 0, "It was expected that the values would coincide");
     YLATEST_ASSERT_TRUE(yla_vm_done(&vm), "normal");
@@ -440,7 +444,7 @@ static int test_negative_mult_some_numbers()
     yla_vm vm;
     YLATEST_ASSERT_TRUE(yla_vm_init(&vm, prg, HEADER_SIZE + sizePrg + sizeCommd), "normal");
 	YLATEST_ASSERT_FALSE(yla_vm_run(&vm), "normal");
-    YLATEST_ASSERT_TRUE(yla_vm_last_error(&vm) == YLA_VM_ERROR_STACK_EMPTY, "Expected error for wrong arguments CMULT");
+    YLATEST_ASSERT_TRUE(yla_vm_last_error(&vm) == YLA_VM_ERROR_INTERP_STACK_EMPTY, "Expected error for wrong arguments CMULT");
     YLATEST_ASSERT_TRUE(yla_vm_done(&vm), "normal");
     
     return 0;
