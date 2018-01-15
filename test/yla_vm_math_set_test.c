@@ -34,11 +34,9 @@
 /**
  * Negative test set
  * [2,4,5] 11 *
- * [3,2,4] [4] ?
  * 
  * 11 [2,3,4] *
  * 66 [3,2,6] +
- * 12 [12,2,4] ?
  **/
  
 static int test_positive_union_of_sets_one_size()
@@ -170,7 +168,7 @@ static int test_negative_union_of_sets()
     YLATEST_ASSERT_TRUE(yla_vm_init(&vm, prg, HEADER_SIZE + sizePrg), "normal");
     //yla_vm_run(&vm);
     YLATEST_ASSERT_FALSE(yla_vm_run(&vm), "normal");
-    printf("%s\n", yla_vm_error_message(yla_vm_last_error(&vm)));
+    //printf("%s\n", yla_vm_error_message(yla_vm_last_error(&vm)));
     YLATEST_ASSERT_TRUE(yla_vm_last_error(&vm) == YLA_VM_ERROR_INTERP_STACK_UNKNOWN_COMMAND, "Excepted interp unknown command");
     YLATEST_ASSERT_TRUE(yla_vm_done(&vm), "normal");
 
@@ -224,9 +222,76 @@ static int test_positive_include_of_sets()
     return 0;
 }
 
-static int test_negative_include_of_sets()
+static int test_negative_include_set_in_set()
 {
+	const size_t kCommd = 5;
+	const size_t size_of_set1 = 3;
+	const size_t size_of_set2 = 1;
+	const size_t count_sets = 2;
+	size_t count_for_size_of_set =  count_sets;
+	size_t stack_size = size_of_set1 + size_of_set2;
+	
+	size_t sizePrg = kCommd + (count_for_size_of_set + stack_size) * sizeof(yla_number_type);
+    yla_cop_type prg[HEADER_SIZE + sizePrg];
+    yla_cop_type *ptr = prg;
+    
+	size_t interp_stack_size = count_sets * count_for_size_of_set;
+	yla_number_type set1[] = {3.234, 4, 2.22};
+	yla_number_type set2[] = {4};
+	
+	//NOTE: [3,2,4] [4] ? = YLA_VM_ERROR_INTERP_STACK_UNKNOWN_COMMAND
+    put_header_ext(&ptr, stack_size, interp_stack_size, 0, sizePrg);
+    put_set(&ptr, size_of_set1, set1);
+    put_set(&ptr, size_of_set2, set2);
+    put_commd(&ptr, CINCLUDE);
+    put_commd(&ptr, COUT);
+    put_commd(&ptr, CHALT);
+    
+    yla_vm vm;
+    YLATEST_ASSERT_TRUE(yla_vm_init(&vm, prg, HEADER_SIZE + sizePrg), "normal");
+    //yla_vm_run(&vm);
+    //printf("%s\n", yla_vm_error_message(yla_vm_last_error(&vm)));
+    YLATEST_ASSERT_FALSE(yla_vm_run(&vm), "not normal");
+    YLATEST_ASSERT_TRUE(yla_vm_last_error(&vm) == YLA_VM_ERROR_INTERP_STACK_UNKNOWN_COMMAND, "Excepted interp unknown command");
+    YLATEST_ASSERT_TRUE(yla_vm_done(&vm), "normal");
 
+    return 0;
+}
+
+static int test_negative_include_set_in_number()
+{
+	const size_t kCommd = 5;
+	const size_t size_of_set = 3;
+	const size_t count_sets = 1;
+	const size_t count_number = 1;
+	size_t count_for_size_of_set =  count_sets;
+	size_t stack_size = size_of_set + count_number;
+	
+	size_t sizePrg = kCommd + (count_for_size_of_set + stack_size) * sizeof(yla_number_type);
+    yla_cop_type prg[HEADER_SIZE + sizePrg];
+    yla_cop_type *ptr = prg;
+    
+	size_t interp_stack_size = count_sets + count_for_size_of_set + count_number;
+	yla_number_type set1[] = {3.234, 4, 2.22};
+	yla_number_type number = 4;
+	
+	//NOTE: 4 [3,2,4] ? = YLA_VM_ERROR_INTERP_STACK_UNKNOWN_COMMAND
+    put_header_ext(&ptr, stack_size, interp_stack_size, 0, sizePrg);
+    put_number(&ptr, number);
+    put_set(&ptr, size_of_set, set1);
+    put_commd(&ptr, CINCLUDE);
+    put_commd(&ptr, COUT);
+    put_commd(&ptr, CHALT);
+    
+    yla_vm vm;
+    YLATEST_ASSERT_TRUE(yla_vm_init(&vm, prg, HEADER_SIZE + sizePrg), "normal");
+    //yla_vm_run(&vm);
+    //printf("%s\n", yla_vm_error_message(yla_vm_last_error(&vm)));
+    YLATEST_ASSERT_FALSE(yla_vm_run(&vm), "not normal");
+    YLATEST_ASSERT_TRUE(yla_vm_last_error(&vm) == YLA_VM_ERROR_INTERP_STACK_UNKNOWN_COMMAND, "Excepted interp unknown command");
+    YLATEST_ASSERT_TRUE(yla_vm_done(&vm), "normal");
+
+    return 0;
 }
 
 static int test_positive_intersection_of_sets()
@@ -245,7 +310,8 @@ YLATEST_BEGIN(yla_vm_math_set_test)
    YLATEST_ADD_TEST_CASE(test_negative_union_of_sets)
    
    YLATEST_ADD_TEST_CASE(test_positive_include_of_sets)
-   //YLATEST_ADD_TEST_CASE(test_negative_include_of_sets)
+   YLATEST_ADD_TEST_CASE(test_negative_include_set_in_set)
+   YLATEST_ADD_TEST_CASE(test_negative_include_set_in_number)
    
    //YLATEST_ADD_TEST_CASE(test_positive_intersection_of_sets)
    //YLATEST_ADD_TEST_CASE(test_negative_intersection_of_sets)
