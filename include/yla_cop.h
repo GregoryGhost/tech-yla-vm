@@ -27,26 +27,29 @@ codes of operations
 #define CNOP	0x00
 
 #define CPUSH	0x01
-#define CDUP	0x02
-#define CDEEP	0x03
-#define CSTK	0x04
+#define CDUP	0x02 //NOT WORKING
+#define CDEEP	0x03 //NOT WORKING
+#define CSTK	0x04 //NOT WORKING
 
-#define CLOAD	0x08
-#define CSAVE	0x09
+#define CLOAD	0x08 //NOT WORKING
+#define CSAVE	0x09 //NOT WORKING
 
 #define CADD	0x10
 #define CSUB	0x11
 #define CMULT	0x12
 #define CDIV	0x13
-#define CNEG	0x14
+#define CNEG	0x14 //NOT WORKING
 
-#define CJMP    0x20
-#define CJZ     0x21
-#define CJNZ    0x22
+#define CJMP    0x20 //NOT WORKING
+#define CJZ     0x21 //NOT WORKING
+#define CJNZ    0x22 //NOT WORKING
 
-#define CIN     0x30
-#define CINS    0x31
+#define CIN     0x30 //NOT WORKING
+#define CINS    0x31 //NOT WORKING
 #define COUT	0x32
+
+#define CPUSHSET 0x33
+#define CINCLUDE 0x34
 
 #define CHALT	0xff
 
