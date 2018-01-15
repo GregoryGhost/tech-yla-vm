@@ -182,6 +182,18 @@ char *yla_vm_last_output(yla_vm *vm);
  * @return resulting set is result of union a sets
  **/
  yla_number_type include_of_set(yla_vm *vm, size_t size_of_set, yla_number_type *set1, yla_number_type number);
+ 
+  /**
+ * Returns sorted and without dubles a intersection of two sets
+ * @param vm virtual machine structure
+ * @param count of elements first sets
+ * @param count of elements second sets
+ * @param first set
+ * @param second set
+ * @param count of elements result of intersection a sets
+ * @return resulting set is result of intersection a sets
+ **/ 
+ yla_number_type *intersection_of_sets(yla_vm *vm, size_t size_of_set1, size_t size_of_set2, yla_number_type *set1, yla_number_type *set2, size_t *size_of_rset);
 /*
 TODO: Add/Remove breakpoints
 */

@@ -613,15 +613,68 @@ int yla_vm_do_command_internal(yla_vm *vm, yla_cop_type cop)
 			break;
 
 		case CMULT:
-			if (!yla_vm_stack_pull(vm, &op1)) {
+			if (!yla_vm_interp_pull(vm, &cmd)) {
 				return 0;
 			}
-			if (!yla_vm_stack_pull(vm, &op2)) {
-				return 0;
-			}
-			res = op2 * op1;
-			if (!yla_vm_stack_push(vm, res)) {
-				return 0;
+			switch((int)cmd){
+				case CPUSH:
+					if (!yla_vm_stack_pull(vm, &op1)) {
+						return 0;
+					}
+					
+					if (!yla_vm_interp_pull(vm, &cmd)) {
+						return 0;
+					}
+
+					if (((int)cmd) != CPUSH) {
+						vm->last_error = YLA_VM_ERROR_INTERP_STACK_UNKNOWN_COMMAND;
+						return 0;
+					}
+					
+					if (!yla_vm_stack_pull(vm, &op2)) {
+						return 0;
+					}
+					
+					res = op2 * op1;
+					if (!yla_vm_interp_push(vm)) {
+						return 0;
+					}
+					if (!yla_vm_stack_push(vm, res)) {
+						return 0;
+					}
+				case CPUSHSET:
+					set1 = yla_vm_stack_pull_set(vm, &size_of_set1);
+					if (set1 == NULL) {
+						return 0;
+					}
+					if (!yla_vm_interp_pull(vm, &cmd)) {
+						return 0;
+					}
+					
+					if (((int)cmd) != CPUSHSET) {
+						vm->last_error = YLA_VM_ERROR_INTERP_STACK_UNKNOWN_COMMAND;
+						return 0;
+					}
+					set2 = yla_vm_stack_pull_set(vm, &size_of_set2);
+					if (set2 == NULL) {
+						return 0;
+					}
+					//set1 set2 * = [intersection of sets]
+					rset = intersection_of_sets(vm, size_of_set, size_of_set2, set1, set2, &size_of_rset);
+					if (rset == NULL) {
+						return 0;
+					}
+					
+					if (!yla_vm_interp_pushset(vm, size_of_rset)) {
+						return 0;
+					}
+					if (!yla_vm_stack_push_set(vm, rset, size_of_rset)) {
+						return 0;
+					}
+					break;
+				default:
+					vm->last_error = YLA_VM_ERROR_UNKNOWN_COMMAND;
+					return 0;
 			}
 			break;
 
@@ -787,6 +840,50 @@ yla_number_type include_of_set(yla_vm *vm, size_t size_of_set, yla_number_type *
 		}
 	}
 	return result;
+}
+
+yla_number_type *intersection_of_sets(yla_vm *vm, size_t size_of_set1, size_t size_of_set2, yla_number_type *set1, yla_number_type *set2, size_t *size_of_rset)
+{
+	if (vm == NULL) {
+		return NULL;
+	}
+	if ((size_of_set1 <= 0) || (size_of_set2 <= 0)){
+		vm->last_error = YLA_VM_ERROR_BAD_SET_SIZE;
+		return NULL;
+	}
+	if ((set1 == NULL) || (set2 == NULL)){
+		vm->last_error = YLA_VM_ERROR_CODE_SEG_EXCEED;
+		return NULL;
+	}
+	size_t intersection = 0;
+	for (int i = 0; i < size_of_set1; i++)
+	{
+		for (int j = 0; j < size_of_set2; j++)
+		{
+			if (set1[i] == set2[j]) {
+				intersection++;
+			}
+		}
+	}
+	*size_of_rset = intersection;
+	yla_number_type *rset = (yla_number_type *)calloc(*size_of_rset, sizeof(yla_number_type));
+	if (rset == NULL) {
+		vm->last_error = YLA_VM_ERROR_CALLOC_SET;
+		return NULL;
+	}
+	int k = 0;
+	for (int i = 0; i < size_of_set1; i++)
+	{
+		for (int j = 0; j < size_of_set2; j++)
+		{
+			if (set1[i] == set2[j]) {
+				rset[k] = set1[i];
+				k++;
+			}
+		}
+	}
+	qsort(rset, *size_of_rset, sizeof(yla_number_type), compare);
+	return rset;
 }
 /*
 Error messages
