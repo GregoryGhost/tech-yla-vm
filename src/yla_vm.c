@@ -642,7 +642,44 @@ int yla_vm_do_command_internal(yla_vm *vm, yla_cop_type cop)
 				return 0;
 			}
 			break;
-
+		case CINCLUDE:
+			if (!yla_vm_interp_pull(vm, &cmd)) {
+				return 0;
+			}
+			switch((yla_cop_type)cmd){
+				case CPUSH:
+					if (!yla_vm_stack_top(vm, &op1)) {
+						return 0;
+					}
+					
+					if (!yla_vm_interp_pull(vm, &cmd)) {
+						return 0;
+					}
+					
+					if (((int)cmd) != CPUSHSET) {
+						vm->last_error = YLA_VM_ERROR_INTERP_STACK_UNKNOWN_COMMAND;
+						return 0;
+					}
+					set1 = yla_vm_stack_pull_set(vm, &size_of_set1);
+					
+					res = include_of_set(vm, size_of_set1, set1, op1);
+					
+					if (res == -1) {
+						return 0;
+					}
+					if (!yla_vm_interp_push(vm)) {
+						return 0;
+					}
+					if (!yla_vm_stack_push(vm, res)) {
+						return 0;
+					}
+					
+					break;
+				default:
+					vm->last_error = YLA_VM_ERROR_INTERP_STACK_UNKNOWN_COMMAND;
+					return 0;
+			}
+			break;
 		case COUT:
 			if (!yla_vm_interp_pull(vm, &cmd)) {
 				return 0;
@@ -727,6 +764,30 @@ yla_number_type *union_sets(yla_vm *vm, size_t size_of_set1, size_t size_of_set2
 	return rset;
 }
 
+yla_number_type include_of_set(yla_vm *vm, size_t size_of_set, yla_number_type *set1, yla_number_type number)
+{
+	if (vm == NULL) {
+		return -1;
+	}
+	if (size_of_set <= 0){
+		vm->last_error = YLA_VM_ERROR_BAD_SET_SIZE;
+		return -1;
+	}
+	if (set1 == NULL){
+		vm->last_error = YLA_VM_ERROR_CODE_SEG_EXCEED;
+		return -1;
+	}
+	yla_number_type result = 0.0;
+	
+	for (int i = 0; i < size_of_set; i++)
+	{
+		if (number == set1[i]) {
+			result = 1.0;
+			break;
+		}
+	}
+	return result;
+}
 /*
 Error messages
 */

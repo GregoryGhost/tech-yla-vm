@@ -57,6 +57,7 @@ magic1: yla_number_type
 magic2: yla_number_type
 magic3: yla_number_type
 stack_size: yla_number_type
+interp_stack_size: yla_number_type;
 vartable_size: yla_number_type
 code_size: yla_number_type
 code: array of char
@@ -171,6 +172,16 @@ char *yla_vm_last_output(yla_vm *vm);
  * @return resulting set is result of union a sets
  **/
  yla_number_type *union_sets(yla_vm *vm, size_t size_of_set1, size_t size_of_set2, yla_number_type *set1, yla_number_type *set2, size_t *size_of_rset);
+
+ /**
+ * Returns 1 (includes) or 0 (does not include) the set given number
+ * @param vm virtual machine structure
+ * @param count of elements of set
+ * @param set
+ * @param number
+ * @return resulting set is result of union a sets
+ **/
+ yla_number_type include_of_set(yla_vm *vm, size_t size_of_set, yla_number_type *set1, yla_number_type number);
 /*
 TODO: Add/Remove breakpoints
 */
